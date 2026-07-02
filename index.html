@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Puppy Care</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background: #1a1a22;
+      color: #f4f4f4;
+      font-family: "Courier New", monospace;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    #wrap { text-align: center; }
+    canvas {
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+      box-shadow: 0 0 0 4px #333, 0 0 30px rgba(0,0,0,0.6);
+      display: block;
+      margin: 0 auto;
+    }
+    #hint {
+      margin-top: 10px;
+      font-size: 13px;
+      letter-spacing: 1px;
+      opacity: 0.75;
+    }
+    kbd {
+      background: #333;
+      border: 1px solid #555;
+      border-radius: 3px;
+      padding: 1px 6px;
+      font-family: inherit;
+    }
+  </style>
+</head>
+<body>
+  <div id="wrap">
+    <canvas id="game"></canvas>
+    <div id="hint">
+      <kbd>&larr;&uarr;&darr;&rarr;</kbd> / <kbd>WASD</kbd> move &nbsp;
+      <kbd>Space</kbd> pick up puppy &nbsp;
+      <kbd>E</kbd> use station &nbsp;
+      <kbd>Q</kbd> cycle accessory
+    </div>
+  </div>
+  <script src="game.js"></script>
+</body>
+</html>

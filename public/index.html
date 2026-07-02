@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Signal Check — copy analyzer for recording professionals</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 26 26'%3E%3Crect x='2' y='11' width='3' height='6' rx='1.5' fill='%233987e5'/%3E%3Crect x='7' y='7' width='3' height='14' rx='1.5' fill='%233987e5'/%3E%3Crect x='12' y='3' width='3' height='20' rx='1.5' fill='%233987e5'/%3E%3Crect x='17' y='8' width='3' height='12' rx='1.5' fill='%233987e5'/%3E%3Crect x='22' y='12' width='3' height='5' rx='1.5' fill='%233987e5'/%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="wrap header-inner">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">
+          <svg width="26" height="26" viewBox="0 0 26 26" fill="none">
+            <rect x="2" y="11" width="3" height="6" rx="1.5" fill="currentColor"/>
+            <rect x="7" y="7" width="3" height="14" rx="1.5" fill="currentColor"/>
+            <rect x="12" y="3" width="3" height="20" rx="1.5" fill="currentColor"/>
+            <rect x="17" y="8" width="3" height="12" rx="1.5" fill="currentColor"/>
+            <rect x="22" y="12" width="3" height="5" rx="1.5" fill="currentColor"/>
+          </svg>
+        </span>
+        <div>
+          <h1>Signal Check</h1>
+          <p class="tagline">Is your studio's website copy signal — or noise?</p>
+        </div>
+      </div>
+      <nav class="tabs" role="tablist">
+        <button class="tab active" data-tab="analyze" role="tab">Analyze a site</button>
+        <button class="tab" data-tab="paste" role="tab">Paste copy</button>
+        <button class="tab" data-tab="find" role="tab">Find sites</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <!-- ANALYZE TAB -->
+    <section id="tab-analyze" class="tab-panel active">
+      <div class="input-card">
+        <label for="url-input">Website of a producer, mixing/mastering engineer, or studio</label>
+        <div class="input-row">
+          <input id="url-input" type="text" placeholder="e.g. sylviamasseystudio.com" autocomplete="off" spellcheck="false" />
+          <button id="analyze-btn" class="btn-primary">Analyze</button>
+        </div>
+        <p class="hint">Crawls the homepage plus key pages (about, services, credits) and scores the copy for standout signals, generic boilerplate, and AI clichés.</p>
+      </div>
+      <div id="analyze-status" class="status" hidden></div>
+      <div id="report"></div>
+      <section id="history-section" hidden>
+        <h2 class="section-title">This session's comparisons</h2>
+        <div class="table-scroll">
+          <table id="history-table">
+            <thead>
+              <tr><th>Site</th><th>Verdict</th><th class="num">Originality</th><th class="num">Standout</th><th class="num">Generic</th><th class="num">AI cliché</th><th class="num">Words</th></tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+    </section>
+
+    <!-- PASTE TAB -->
+    <section id="tab-paste" class="tab-panel">
+      <div class="input-card">
+        <label for="paste-input">Paste website copy, a draft bio, or a services page</label>
+        <textarea id="paste-input" rows="10" placeholder="Paste the copy here — useful for JavaScript-only sites, or for checking a draft before it goes live."></textarea>
+        <div class="input-row-end">
+          <button id="paste-btn" class="btn-primary">Analyze copy</button>
+        </div>
+      </div>
+      <div id="paste-status" class="status" hidden></div>
+      <div id="paste-report"></div>
+    </section>
+
+    <!-- FIND TAB -->
+    <section id="tab-find" class="tab-panel">
+      <div class="input-card">
+        <label>Find recording professionals to analyze</label>
+        <div class="finder-grid">
+          <select id="find-role">
+            <option value="music producer">Music producer</option>
+            <option value="mixing engineer">Mixing engineer</option>
+            <option value="mastering engineer">Mastering engineer</option>
+            <option value="recording studio">Recording studio</option>
+            <option value="vocal producer">Vocal producer</option>
+          </select>
+          <input id="find-genre" type="text" placeholder="Genre (optional) — e.g. indie rock" />
+          <input id="find-location" type="text" placeholder="City / region (optional) — e.g. Nashville" />
+          <button id="find-btn" class="btn-primary">Search</button>
+        </div>
+        <p class="hint">Searches the web and filters out marketplaces and social platforms, leaving personal and studio sites you can analyze in one click.</p>
+      </div>
+      <div id="find-status" class="status" hidden></div>
+      <div id="find-results" class="find-results"></div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <p>Signal Check scores copy heuristically — it can't hear the mixes. Use it to find weak language, not to judge the engineer.</p>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

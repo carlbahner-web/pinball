@@ -1,0 +1,22 @@
+{
+  "name": "signal-check",
+  "version": "1.0.0",
+  "description": "Find and analyze the websites of music producers and recording engineers — flag standout copy, generic boilerplate, and overused AI cliches.",
+  "main": "server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "test": "node test/analyzer.test.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "cheerio": "^1.0.0",
+    "express": "^4.19.2"
+  },
+  "devDependencies": {
+    "playwright-core": "^1.61.1"
+  }
+}

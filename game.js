@@ -13,6 +13,18 @@ canvas.height = H * SCALE;
 ctx.imageSmoothingEnabled = false;
 ctx.scale(SCALE, SCALE);
 
+// Fit the canvas to the window (CSS scaling keeps the pixel-art crisp).
+function fitCanvas() {
+  const pad = document.body.classList.contains('touch') ? 0 : 40;
+  const availW = window.innerWidth - pad;
+  const availH = window.innerHeight - pad;
+  const scale = Math.min(availW / W, availH / H);
+  canvas.style.width = Math.floor(W * scale) + 'px';
+  canvas.style.height = Math.floor(H * scale) + 'px';
+}
+window.addEventListener('resize', fitCanvas);
+fitCanvas();
+
 // Palette
 const C = {
   sky: '#8fd0ee',
@@ -399,6 +411,101 @@ function consumePress(k) {
   return false;
 }
 
+// --- Touch controls ------------------------------------------------------
+
+const touchVec = { x: 0, y: 0 };
+
+function enableTouchUI() {
+  if (!document.body.classList.contains('touch')) {
+    document.body.classList.add('touch');
+    fitCanvas();
+  }
+}
+if (window.matchMedia('(pointer: coarse)').matches) enableTouchUI();
+window.addEventListener('touchstart', enableTouchUI, { once: true, passive: true });
+
+// Virtual joystick: appears wherever the thumb lands in the left zone.
+(function setupStick() {
+  const zone = document.getElementById('stickZone');
+  const base = document.getElementById('stickBase');
+  const nub = document.getElementById('stickNub');
+  if (!zone) return;
+  const RADIUS = 48;      // px from stick center to full deflection
+  let activeId = null;
+  let cx = 0, cy = 0;
+
+  function place(el, x, y, size) {
+    el.style.left = (x - size / 2) + 'px';
+    el.style.top = (y - size / 2) + 'px';
+    el.style.bottom = 'auto';
+  }
+
+  zone.addEventListener('pointerdown', (e) => {
+    if (state.mode === 'title' || state.mode === 'dayEnd') pressed.add(' ');
+    if (activeId !== null) return;
+    activeId = e.pointerId;
+    try { zone.setPointerCapture(e.pointerId); } catch (_) {}
+    cx = e.clientX; cy = e.clientY;
+    base.style.display = 'block';
+    place(base, cx, cy, 96);
+    nub.style.left = '26px'; nub.style.top = '26px';
+    e.preventDefault();
+  });
+  zone.addEventListener('pointermove', (e) => {
+    if (e.pointerId !== activeId) return;
+    let dx = e.clientX - cx, dy = e.clientY - cy;
+    const len = Math.hypot(dx, dy);
+    if (len > RADIUS) { dx = dx / len * RADIUS; dy = dy / len * RADIUS; }
+    // Nub offset inside the 96px base (center = 26px when idle)
+    nub.style.left = (26 + dx) + 'px';
+    nub.style.top = (26 + dy) + 'px';
+    // Dead zone so a resting thumb doesn't drift the player
+    const norm = Math.hypot(dx, dy) / RADIUS;
+    if (norm < 0.2) { touchVec.x = 0; touchVec.y = 0; }
+    else { touchVec.x = dx / RADIUS; touchVec.y = dy / RADIUS; }
+    e.preventDefault();
+  });
+  function release(e) {
+    if (e.pointerId !== activeId) return;
+    activeId = null;
+    touchVec.x = 0; touchVec.y = 0;
+    base.style.display = 'none';
+  }
+  zone.addEventListener('pointerup', release);
+  zone.addEventListener('pointercancel', release);
+})();
+
+// Action buttons map to the same key handlers as the keyboard.
+(function setupButtons() {
+  const map = [
+    ['btnPick', ' '],
+    ['btnUse', 'e'],
+    ['btnAcc', 'q'],
+  ];
+  for (const [id, key] of map) {
+    const el = document.getElementById(id);
+    if (!el) continue;
+    el.addEventListener('pointerdown', (e) => {
+      pressed.add(key);
+      keys.add(key);
+      e.preventDefault();
+    });
+    const up = () => keys.delete(key);
+    el.addEventListener('pointerup', up);
+    el.addEventListener('pointercancel', up);
+    // Block ghost clicks / context menus on long-press
+    el.addEventListener('contextmenu', (e) => e.preventDefault());
+  }
+})();
+
+// Tapping the game screen advances title / day-end screens.
+canvas.addEventListener('pointerdown', (e) => {
+  if (state.mode === 'title' || state.mode === 'dayEnd') {
+    pressed.add(' ');
+    e.preventDefault();
+  }
+});
+
 // --- Helpers -----------------------------------------------------------
 
 function clamp(v, lo, hi) { return v < lo ? lo : v > hi ? hi : v; }
@@ -483,6 +590,10 @@ function toast(text, secs=2) {
   state.toast = { text, timer: secs };
 }
 
+function isTouch() {
+  return document.body.classList.contains('touch');
+}
+
 // --- Update ------------------------------------------------------------
 
 let last = performance.now();
@@ -555,6 +666,7 @@ function updatePlayer(dt) {
   if (keys.has('arrowright') || keys.has('d')) dx += 1;
   if (keys.has('arrowup')    || keys.has('w')) dy -= 1;
   if (keys.has('arrowdown')  || keys.has('s')) dy += 1;
+  if (dx === 0 && dy === 0) { dx = touchVec.x; dy = touchVec.y; }
 
   if (dx !== 0 || dy !== 0) {
     const len = Math.hypot(dx, dy) || 1;
@@ -680,12 +792,12 @@ function handleInteractions() {
       state.mode = 'bathing';
       state.actTimer = 0;
       state.actProgress = 0;
-      toast('Bathing... mash E!');
+      toast(isTouch() ? 'Bathing... tap USE!' : 'Bathing... mash E!');
     } else if (st.kind === 'brush') {
       state.mode = 'brushing';
       state.actTimer = 0;
       state.actProgress = 0;
-      toast('Brushing... mash E!');
+      toast(isTouch() ? 'Brushing... tap USE!' : 'Brushing... mash E!');
     }
   }
 
@@ -1062,7 +1174,8 @@ function drawMiniGameOverlay() {
 
   const title = state.mode === 'bathing' ? 'BATH TIME!' : 'BRUSH TIME!';
   drawText(title, x + w/2 - textWidth(title)/2, y + 8, C.dayBanner);
-  drawText('MASH E TO FILL THE BAR', x + w/2 - textWidth('MASH E TO FILL THE BAR')/2, y + 20, C.white);
+  const mashMsg = isTouch() ? 'TAP USE TO FILL THE BAR' : 'MASH E TO FILL THE BAR';
+  drawText(mashMsg, x + w/2 - textWidth(mashMsg)/2, y + 20, C.white);
 
   const bx = x + 20, by = y + 34, bw = w - 40, bh = 10;
   ctx.fillStyle = C.meterBg;
@@ -1090,7 +1203,8 @@ function drawDayEndOverlay() {
     'THE PUPPY IS SAD';
   drawText(rating, cx - textWidth(rating)/2, 124, C.bowPink);
 
-  drawText('PRESS SPACE FOR NEXT DAY', cx - textWidth('PRESS SPACE FOR NEXT DAY')/2, 160, C.white);
+  const next = isTouch() ? 'TAP FOR NEXT DAY' : 'PRESS SPACE FOR NEXT DAY';
+  drawText(next, cx - textWidth(next)/2, 160, C.white);
 }
 
 function drawTitleOverlay() {
@@ -1100,7 +1214,10 @@ function drawTitleOverlay() {
   drawText('PUPPY CARE', cx - textWidth('PUPPY CARE', 3)/2, 40, C.dayBanner, 3);
   drawText('KEEP YOUR PUPPY CLEAN,', cx - textWidth('KEEP YOUR PUPPY CLEAN,')/2, 90, C.white);
   drawText('SHINY, AND HAPPY.', cx - textWidth('SHINY, AND HAPPY.')/2, 100, C.white);
-  drawText('PICK UP WITH SPACE,', cx - textWidth('PICK UP WITH SPACE,')/2, 120, C.white);
-  drawText('USE STATIONS WITH E.', cx - textWidth('USE STATIONS WITH E.')/2, 130, C.white);
-  drawText('PRESS SPACE TO START', cx - textWidth('PRESS SPACE TO START')/2, 165, C.bowPink);
+  const l1 = isTouch() ? 'PICK UP WITH THE PICK BUTTON,' : 'PICK UP WITH SPACE,';
+  const l2 = isTouch() ? 'USE STATIONS WITH USE.' : 'USE STATIONS WITH E.';
+  const go = isTouch() ? 'TAP TO START' : 'PRESS SPACE TO START';
+  drawText(l1, cx - textWidth(l1)/2, 120, C.white);
+  drawText(l2, cx - textWidth(l2)/2, 130, C.white);
+  drawText(go, cx - textWidth(go)/2, 165, C.bowPink);
 }

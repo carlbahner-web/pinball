@@ -1,0 +1,7 @@
+# Mirrored copies of the live brand assets (fetch-assets.sh). The real ones
+# live on the site; the repo keeps only the placeholders.
+fonts/
+assets/studioland_mgmt_1.png
+assets/Buzz The Mascot5.png
+assets/website-noise*.webp
+assets/plate-*.png

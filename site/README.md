@@ -12,28 +12,63 @@ site/
   _template.html      copy this to start a new engineer
   engineer.css        every style; canonical palette + tokens at the top
   engineer.js         the boil, mobile menu, Spotify embed
+  fetch-assets.sh     mirrors the live brand assets here for offline work
   assets/
-    logo.svg          PLACEHOLDER — see "Assets still owed" below
-    mascot.svg        PLACEHOLDER BUZZ — same
-    yago-mann.jpg     low-res crop out of the screenshot — replace
-    photo-placeholder.svg   shown if an engineer photo is missing
+    yago-mann.jpg           low-res crop out of the screenshot — replace
+    logo-placeholder.svg    stand-ins that only appear if the real
+    mascot-placeholder.svg  asset 404s (see "How assets resolve")
+    photo-placeholder.svg
 ```
 
 ## Preview locally
 
 ```bash
 cd site
+./fetch-assets.sh          # optional — pulls the real logo, BUZZ, grain, fonts
 python3 -m http.server 8000
 # → http://localhost:8000/yago-mann.html
 ```
 
-(Open it via the server, not `file://` — the SVG filter that makes the torn
-edges needs a real origin.)
+**Serve `site/` as the web root.** Asset paths are root-relative (`/assets/…`,
+`/fonts/…`) so they match the live site, which means the folder you serve has
+to be the root. Don't open it over `file://` either — the SVG filter behind
+the torn edges needs a real origin.
+
+## How assets resolve
+
+Brand assets are referenced at the paths they already live at on
+`welcometostudioland.netlify.app`, so a page dropped onto that site works with
+nothing to copy:
+
+| Path | What |
+|---|---|
+| `/assets/studioland_mgmt_1.png` | the MGMT lockup, header + footer |
+| `/assets/Buzz%20The%20Mascot5.png` | BUZZ in the footer |
+| `/assets/website-noise.webp` | the paper grain (`-2`/`-3` are alternate cuts) |
+| `/fonts/dwfairfield-webfont.woff2` + `.woff` | display face |
+| `/fonts/TAYWingman.woff2` + `.woff` | body face |
+
+Every image also carries an `onerror` fallback to a placeholder in
+`assets/`, so a missing file degrades to a stand-in instead of a broken icon.
+That's what you're seeing if the logo looks like plain typed letters — the
+real lockup 404'd. **The placeholder types the wordmark in a font, which 1.3
+forbids; it exists only so the layout renders.**
+
+Two things worth double-checking against the live site:
+
+- I wired the header/footer mark to **`studioland_mgmt_1.png`** (the MGMT
+  lockup, per 1.3 — this is an MGMT surface). If that file is actually the
+  plain wordmark, `logo.png` is the swap, in two places per page.
+- If these pages ever get hosted on a **different origin** than the fonts,
+  the font requests need a CORS header on them. Same origin, no issue.
 
 ## Add a new engineer
 
 1. `cp _template.html firstname-lastname.html`
-2. Drop their photo in `assets/` and point the `<img src>` at it.
+2. Upload their photo to the site and point the `<img src>` at it. The
+   existing engineer photos follow `firstname-lastname.webp`
+   (`nick-nagurka.webp`, `tim-howarth.webp`…), so the template ships as
+   `/assets/ENGINEER-SLUG.webp`.
 3. Fill in name, role, four bio paragraphs, four Q&A pairs.
 4. Paste their Spotify playlist ID into `data-playlist` on the
    `.spotify-embed` div — it's the chunk after `/playlist/` in the share URL.
@@ -44,20 +79,17 @@ edges needs a real origin.)
    this page's tear differs from its neighbours' (identical wear across
    surfaces is the tell that texture is painted on, not printed in — 2.2).
 
-## Assets still owed (the page runs on stand-ins until these land)
+## Still owed
 
-| Drop in as | What it is | Until then |
-|---|---|---|
-| `assets/fonts/DWFairfield.woff2` | display face (1.2) | falls back to a condensed sans |
-| `assets/fonts/DWFairfieldNarrow.woff2` | the Narrow cut | — |
-| `assets/fonts/TAYWingman.woff2` | body face (1.2) | falls back to a humanist sans |
-| `assets/noise.webp` | Carl's grain overlay, cropped + flattened like the game's (2.2 Tier 1) | the ground renders flat, which breaks "never ship a colored field with no grain" |
-| `assets/plate-01.png` | a distress sheet, density-on-white, no alpha (2.2 Tier 2) | `card--weathered` has nothing to multiply |
-| `assets/logo.svg` | the real MGMT lockup | **currently a typed stand-in, which the bible forbids** — the wordmark is custom artwork and must never be re-typed in a font (1.3) |
-| `assets/mascot.svg` | real BUZZ artwork | a rough placeholder built to the 1.4 model-sheet notes |
-| `assets/yago-mann.jpg` | the original photo | a soft crop out of the screenshot |
-
-Filenames are wired up already — dropping the real files in is the whole job.
+- **Yago's photo.** `assets/yago-mann.jpg` is cropped out of the screenshot,
+  so it's soft. There's no `yago-mann.webp` on the site yet — upload one and
+  point the `<img src>` at it like the other engineers.
+- **A distress sheet**, if you want Tier-2 weathering. `card--weathered`
+  expects `/assets/plate-01.png` (density-on-white, no alpha); nothing at
+  that path yet, so the class is inert until one lands.
+- **The DW Fairfield Narrow cut** isn't among the webfonts — only the regular
+  is wired. Nothing on this page needs Narrow, but that's why it's absent
+  from the stack.
 
 ## What the brand bible dictates here
 
@@ -68,12 +100,12 @@ Showit page's `#f2b930` was drifted mustard, and mustard under the multiply
 grain lands close to what you had.
 
 **Type (1.2).** Two faces, DW Fairfield (display, all-caps) and TAY Wingman
-(body). The Google-font stand-ins are gone; the stacks behind the real faces
-are load-time fallbacks only. DW Fairfield has one weight — nothing on this
-page asks for a synthetic bold.
+(body), served from `/fonts/`. No third-party font host. The stacks behind
+them — a condensed sans, a humanist sans — are load-time fallbacks only. DW
+Fairfield has one weight; nothing on this page asks for a synthetic bold.
 
 **Texture (2.2).** The code-generated speck pattern is retired. Tier 1 is
-Carl's real grain multiplied over the ground. Tier 2 is the
+the real `website-noise.webp` multiplied over the ground. Tier 2 is the
 `card--weathered` class: it lands a **whole, fitted** distress sheet on a
 panel's ground while the contents stay clean on top — multiply, never normal,
 never cropped-and-tiled, never scaled at paint time.

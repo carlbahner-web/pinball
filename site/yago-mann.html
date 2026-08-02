@@ -6,7 +6,7 @@
   <title>Yago Mann — STUDIOLAND MGMT</title>
   <meta name="description" content="Yago Mann — producer, mixer, guitarist. Engineer profile at STUDIOLAND MGMT." />
 
-  <!-- Fonts are DW Fairfield + TAY Wingman, loaded from assets/fonts/ by
+  <!-- Fonts are DW Fairfield + TAY Wingman, loaded from /fonts/ by
        engineer.css. No third-party font host. -->
   <link rel="stylesheet" href="engineer.css" />
 </head>
@@ -36,7 +36,8 @@
   <header class="topbar">
     <div class="topbar__inner">
       <a class="topbar__logo" href="/" aria-label="STUDIOLAND MGMT home">
-        <img src="assets/logo.svg" alt="STUDIOLAND MGMT" />
+        <img src="/assets/studioland_mgmt_1.png" alt="STUDIOLAND MGMT"
+             onerror="this.onerror=null;this.src='/assets/logo-placeholder.svg'" />
       </a>
 
       <button class="topbar__menu" type="button" aria-label="Menu" aria-expanded="false" aria-controls="primary-nav">
@@ -55,10 +56,10 @@
 
       <!-- Photo -->
       <figure class="card photo-card">
-        <img src="assets/yago-mann.jpg"
+        <img src="/assets/yago-mann.jpg"
              alt="Yago Mann sitting on graffiti-covered steps"
              width="1200" height="1600"
-             onerror="this.src='assets/photo-placeholder.svg'" />
+             onerror="this.onerror=null;this.src='/assets/photo-placeholder.svg'" />
       </figure>
 
       <!-- Name + bio (one card on desktop, two bands on mobile) -->
@@ -113,7 +114,8 @@
 
   <!-- ===================== FOOTER ===================== -->
   <div class="mascot-row">
-    <img class="mascot-row__mascot" src="assets/mascot.svg" alt="" aria-hidden="true" />
+    <img class="mascot-row__mascot" src="/assets/Buzz%20The%20Mascot5.png" alt="" aria-hidden="true"
+         onerror="this.onerror=null;this.src='/assets/mascot-placeholder.svg'" />
 
     <nav class="social" aria-label="Yago Mann elsewhere">
       <a href="#" aria-label="Website">
@@ -152,7 +154,8 @@
         <a href="/contact">Contact</a>
       </div>
       <a class="footer-nav__logo" href="/" aria-label="STUDIOLAND MGMT home">
-        <img src="assets/logo.svg" alt="STUDIOLAND MGMT" />
+        <img src="/assets/studioland_mgmt_1.png" alt="STUDIOLAND MGMT"
+             onerror="this.onerror=null;this.src='/assets/logo-placeholder.svg'" />
       </a>
     </div>
   </nav>

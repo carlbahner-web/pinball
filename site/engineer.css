@@ -28,7 +28,7 @@
      The @font-face block below points at the real faces. The stacks behind
      them are LOAD-TIME FALLBACKS ONLY (a condensed sans behind DW Fairfield,
      a humanist sans behind TAY Wingman) — never the intended look. */
-  --font-display: "DW Fairfield", "DW Fairfield Narrow",
+  --font-display: "DW Fairfield",
                   "Arial Narrow", "Helvetica Neue Condensed", sans-serif;
   --font-body:    "TAY Wingman",
                   "Avenir Next", "Segoe UI", system-ui, sans-serif;
@@ -63,9 +63,10 @@ html {
 
 figure, h1, h2, dl, dd { margin: 0; }
 
-/* Tier 1 — the paper GRAIN (2.2). Carl's real overlay PNG, multiplied over
-   the ground. No code-generated noise: one grain source, applied everywhere.
-   Drop the file in as assets/noise.webp; until then the ground renders flat. */
+/* Tier 1 — the paper GRAIN (2.2). The real site overlay, multiplied over the
+   ground. No code-generated noise: one grain source, applied everywhere.
+   website-noise-2.webp and -3.webp are the other cuts if this one reads too
+   coarse — judge at phone scale, where grain reads ~2x coarser than desktop. */
 body {
   margin: 0;
   overflow-x: hidden;
@@ -73,7 +74,7 @@ body {
   letter-spacing: var(--body-track);
   color: var(--charcoal);
   background-color: var(--ground);
-  background-image: url("assets/noise.webp");
+  background-image: url("/assets/website-noise.webp");
   background-repeat: repeat;
   background-blend-mode: multiply;   /* multiply only — normal desaturates */
 }
@@ -120,11 +121,11 @@ a   { color: inherit; text-decoration: none; }
    contents stay clean on top (the weathered-panel pattern).
    Rules baked in below: the sheet is used WHOLE and fitted (100% 100%, never
    cropped-and-tiled), and it multiplies (normal blend desaturates).
-   Drop a distress sheet in as assets/plate-01.png — stored density-on-white,
-   no alpha. Give neighbouring panels different sheets so no two carry
+   Not uploaded yet: /assets/plate-01.png, stored density-on-white and
+   with no alpha. Give neighbouring panels different sheets so no two carry
    identical marks. */
 .card--weathered::before {
-  background-image: url("assets/plate-01.png");
+  background-image: url("/assets/plate-01.png");
   background-size: 100% 100%;
   background-repeat: no-repeat;
   background-blend-mode: multiply;
@@ -491,24 +492,17 @@ a   { color: inherit; text-decoration: none; }
 }
 
 /* ==========================================================================
-   The two brand faces (1.2)
-   Drop the licensed files in site/assets/fonts/ under these names and they
-   render. Until then the stacks in :root fall through to a condensed sans /
-   humanist sans — load-time fallbacks only, never the intended look.
+   The two brand faces (1.2) — served from the live site at /fonts/.
+   Root-relative, so they resolve when this page sits on the same origin as
+   the rest of StudioLand. Serving from another origin needs a CORS header on
+   the font responses; hosting the page alongside them avoids that entirely.
    DW Fairfield has ONE weight. Do not fake a heavier cut with synthetic bold.
    ========================================================================== */
 
 @font-face {
   font-family: "DW Fairfield";
-  src: url("assets/fonts/DWFairfield.woff2") format("woff2");
-  font-weight: normal;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "DW Fairfield Narrow";
-  src: url("assets/fonts/DWFairfieldNarrow.woff2") format("woff2");
+  src: url("/fonts/dwfairfield-webfont.woff2") format("woff2"),
+       url("/fonts/dwfairfield-webfont.woff")  format("woff");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
@@ -516,7 +510,8 @@ a   { color: inherit; text-decoration: none; }
 
 @font-face {
   font-family: "TAY Wingman";
-  src: url("assets/fonts/TAYWingman.woff2") format("woff2");
+  src: url("/fonts/TAYWingman.woff2") format("woff2"),
+       url("/fonts/TAYWingman.woff")  format("woff");
   font-weight: normal;
   font-style: normal;
   font-display: swap;

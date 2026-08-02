@@ -1,7 +1,6 @@
-# Mirrored copies of the live brand assets (fetch-assets.sh). The real ones
-# live on the site; the repo keeps only the placeholders.
+# Not committed: the paper grain and distress sheets, mirrored by
+# fetch-assets.sh, plus the two brand faces. The logo, MGMT lockup and BUZZ
+# artwork ARE committed, so the page renders anywhere.
 fonts/
-assets/studioland_mgmt_1.png
-assets/Buzz The Mascot5.png
 assets/website-noise*.webp
 assets/plate-*.png

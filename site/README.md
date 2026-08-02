@@ -14,10 +14,12 @@ site/
   engineer.js         the boil, mobile menu, Spotify embed
   fetch-assets.sh     mirrors the live brand assets here for offline work
   assets/
+    studioland_mgmt_1.png   the MGMT lockup (dark build)
+    Buzz The Mascot5.png    BUZZ
+    logo.png                the plain wordmark (cream build)
     yago-mann.jpg           low-res crop out of the screenshot — replace
-    logo.png                the real plain wordmark, cream build
-    mascot-placeholder.svg  stand-ins that only appear if the real
-    photo-placeholder.svg   asset 404s (see "How assets resolve")
+    mascot-placeholder.svg  stand-ins, only appear if an asset 404s
+    photo-placeholder.svg
 ```
 
 ## Preview locally
@@ -40,27 +42,28 @@ Brand assets are referenced at the paths they already live at on
 `welcometostudioland.netlify.app`, so a page dropped onto that site works with
 nothing to copy:
 
-| Path | What |
-|---|---|
-| `/assets/studioland_mgmt_1.png` | the MGMT lockup, header + footer (falls back to the committed `assets/logo.png`) |
-| `/assets/Buzz%20The%20Mascot5.png` | BUZZ in the footer |
-| `/assets/website-noise.webp` | the paper grain (`-2`/`-3` are alternate cuts) |
-| `/fonts/dwfairfield-webfont.woff2` + `.woff` | display face |
-| `/fonts/TAYWingman.woff2` + `.woff` | body face |
+| Path | What | In the repo? |
+|---|---|---|
+| `/assets/studioland_mgmt_1.png` | the MGMT lockup, header + footer | yes |
+| `/assets/Buzz%20The%20Mascot5.png` | BUZZ in the footer | yes |
+| `/assets/logo.png` | the plain wordmark, used as the lockup's fallback | yes |
+| `/assets/website-noise.webp` | the paper grain (`-2`/`-3` are alternate cuts) | no |
+| `/fonts/dwfairfield-webfont.woff2` + `.woff` | display face | no |
+| `/fonts/TAYWingman.woff2` + `.woff` | body face | no |
 
 Every image carries an `onerror` fallback, so a missing file degrades to
 something sensible instead of a broken icon.
 
-**The logo fallback is the real wordmark.** `assets/logo.png` is the plain
-STUDIOLAND mark (arrow-I signpost intact) — committed here, so nothing on
-this page ever types the wordmark in a font, which 1.3 forbids. It's the
-**cream build**, though, so it needs a dark ground: the fallback handler adds
-`logo--on-ink`, which puts a torn charcoal Box1 behind it. That's what you're
-looking at if the mark sits on a small dark chip — the MGMT lockup 404'd.
+**The logo fallback is the real wordmark.** If the MGMT lockup ever 404s,
+`assets/logo.png` takes over — the plain mark, arrow-I signpost intact — so
+nothing here types the wordmark in a font, which 1.3 forbids. That one is the
+*cream* build, so the handler also adds `logo--on-ink`, a torn charcoal Box1
+behind it; cream artwork on a cream bar would be invisible. If you ever see
+the mark on a small dark chip, that's the fallback firing.
 
-If the MGMT lockup turns out to be a cream build too, the honest fix is a
-charcoal top bar rather than a chip: `--cream` → `--charcoal` on `.topbar`,
-with the nav type flipping to cream.
+**The lockup is sized by width, not height** (`clamp(120px, 12vw, 152px)`).
+It's a stacked mark — at a header-ish 46px height it renders 76px wide and the
+arrow-I stops reading, under the ~140px floor in 1.3.
 
 If these pages ever get hosted on a **different origin** than the fonts, the
 font requests need a CORS header on them. Same origin, no issue.
@@ -92,7 +95,11 @@ font requests need a CORS header on them. Same origin, no issue.
   that path yet, so the class is inert until one lands.
 - **The DW Fairfield Narrow cut** isn't among the webfonts — only the regular
   is wired. Nothing on this page needs Narrow, but that's why it's absent
-  from the stack.
+  from the stack. `TAYWingman.woff2` is missing too; the `.woff` loads in its
+  place, at roughly 30% more weight.
+- **The lockup's ink is `#2D2D2D`,** one step off canonical Charcoal
+  `#2C2C2A`. Invisible in practice, but by 1.1 the asset is the thing that's
+  wrong, so it's worth a pass next time that file is regenerated.
 
 ## What the brand bible dictates here
 

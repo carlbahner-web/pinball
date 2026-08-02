@@ -150,7 +150,10 @@ a   { color: inherit; text-decoration: none; }
   gap: 20px;
 }
 
-.topbar__logo img { height: 46px; width: auto; }
+/* Size the lockup by WIDTH, not height: it's a stacked mark, and at a
+   header-ish height the arrow-I signpost and MGMT stop reading — 1.3 puts the
+   floor around 140px wide. */
+.topbar__logo img { width: clamp(120px, 12vw, 152px); height: auto; }
 
 /* The cream wordmark build (assets/logo.png) needs a dark ground under it —
    cream artwork on a cream bar is invisible. Applied by the img's onerror
@@ -401,7 +404,7 @@ a   { color: inherit; text-decoration: none; }
   .topbar__nav  { display: none; }
   .topbar__menu { display: block; }
   .topbar__inner { padding: 12px 20px; flex-wrap: wrap; }
-  .topbar__logo img { height: 38px; }
+  .topbar__logo img { width: clamp(104px, 30vw, 126px); height: auto; }
 
   /* menu opens as a full-width list under the bar */
   .topbar__nav.is-open {

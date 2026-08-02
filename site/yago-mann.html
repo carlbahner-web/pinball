@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Yago Mann — STUDIOLAND MGMT</title>
+  <meta name="description" content="Yago Mann — producer, mixer, guitarist. Engineer profile at STUDIOLAND MGMT." />
+
+  <!-- Stand-in fonts. Swap for the licensed Showit fonts — see engineer.css. -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="engineer.css" />
+</head>
+<body>
+
+  <!-- Rough torn-paper edge filter. Bump `scale` for a more shredded edge,
+       `baseFrequency` for finer/coarser tearing. -->
+  <svg class="svg-defs" aria-hidden="true" focusable="false">
+    <filter id="rough-edge">
+      <feTurbulence type="fractalNoise" baseFrequency="0.022" numOctaves="4" seed="7" result="noise" />
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="13" xChannelSelector="R" yChannelSelector="G" />
+    </filter>
+  </svg>
+
+  <!-- ===================== TOP BAR ===================== -->
+  <header class="topbar">
+    <div class="topbar__inner">
+      <a class="topbar__logo" href="/" aria-label="STUDIOLAND MGMT home">
+        <img src="assets/logo.svg" alt="STUDIOLAND MGMT" />
+      </a>
+
+      <button class="topbar__menu" type="button" aria-label="Menu" aria-expanded="false" aria-controls="primary-nav">
+        <span></span><span></span><span></span>
+      </button>
+
+      <nav class="topbar__nav" id="primary-nav">
+        <a href="/contact">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ===================== PAGE ===================== -->
+  <main class="page">
+    <div class="grid">
+
+      <!-- Photo -->
+      <figure class="card photo-card">
+        <img src="assets/yago-mann.jpg"
+             alt="Yago Mann sitting on graffiti-covered steps"
+             width="1200" height="1600"
+             onerror="this.src='assets/photo-placeholder.svg'" />
+      </figure>
+
+      <!-- Name + bio (one card on desktop, two bands on mobile) -->
+      <article class="card bio-card">
+        <header class="name-block">
+          <h1>Yago Mann</h1>
+          <p>Producer, Mixer, Guitarist</p>
+        </header>
+
+        <div class="bio-body">
+          <p>Yago has spent his career helping artists sound more like themselves. First as a guitar player on other people&rsquo;s records, and now as a producer, his work is built around drawing out the version of the song you&rsquo;ve been chasing &ndash; not imposing his own sound on top of it.</p>
+
+          <p>He hears performance before he hears production, which means the take you love but keep second-guessing is often the one he&rsquo;ll fight for.</p>
+
+          <p>The sound he gravitates toward is what he calls &ldquo;melancholy with momentum&rdquo;: sweet vocals over distorted textures, drums that hit before you&rsquo;ve decided to move, bittersweet without becoming heavy.</p>
+
+          <p>You won&rsquo;t leave a session sounding more like Yago. You&rsquo;ll leave sounding more like yourself &ndash; with someone who never made it about him.</p>
+        </div>
+      </article>
+
+      <!-- Q&A -->
+      <section class="card qa-card">
+        <h2>Get to know Yago<br />in four questions:</h2>
+
+        <dl class="qa">
+          <dt>1. What&rsquo;s a record that changed how you hear music?</dt>
+          <dd>Def Leppard&rsquo;s Hysteria, The Beatles&rsquo; Abbey Road, Pink Floyd&rsquo;s Dark Side of the Moon.</dd>
+
+          <dt>2. What&rsquo;s a trait you value in creative people?</dt>
+          <dd>Those who are willing to try an idea out even if it sounds ridiculous to them.</dd>
+
+          <dt>3. What&rsquo;s something you think people take too seriously?</dt>
+          <dd>The never ending battle between analog vs digital, plugins vs gear, real amps vs amp sims. Who cares&hellip;</dd>
+
+          <dt>4. Coffee or Tea?</dt>
+          <dd>Double irish breakfast black tea with a splash of milk and agave.</dd>
+        </dl>
+      </section>
+
+      <!-- Spotify credits playlist -->
+      <section class="card spotify-card">
+        <h2 class="sr-only">Yago Mann credits playlist</h2>
+        <!-- Paste the playlist ID (the part after /playlist/ in the Spotify URL)
+             into data-playlist. Leave empty to show the placeholder. -->
+        <div class="spotify-embed"
+             data-playlist=""
+             data-title="Yago Mann Credits"></div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- ===================== FOOTER ===================== -->
+  <div class="mascot-row">
+    <img class="mascot-row__mascot" src="assets/mascot.svg" alt="" aria-hidden="true" />
+
+    <nav class="social" aria-label="Yago Mann elsewhere">
+      <a href="#" aria-label="Website">
+        <svg viewBox="0 0 100 100" fill="none" stroke="#f6f1e4" stroke-width="6"
+             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M14 86V44C14 25 30 12 50 12s36 13 36 32v42z" />
+          <path d="M14 62h72M22 40h56" />
+          <path d="M50 12c-11 12-15 30-15 42v32M50 12c11 12 15 30 15 42v32" />
+        </svg>
+      </a>
+      <a href="#" aria-label="Instagram">
+        <svg viewBox="0 0 100 100" fill="none" stroke="#f6f1e4" stroke-width="6"
+             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="16" y="16" width="68" height="68" rx="20" />
+          <circle cx="50" cy="50" r="17" />
+          <circle cx="70" cy="30" r="3.5" fill="#f6f1e4" />
+        </svg>
+      </a>
+      <a href="#" aria-label="Email">
+        <svg viewBox="0 0 100 100" fill="none" stroke="#f6f1e4" stroke-width="6"
+             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="10" y="24" width="80" height="52" rx="6" />
+          <path d="M10 30l40 28 40-28" />
+        </svg>
+      </a>
+    </nav>
+  </div>
+
+  <nav class="footer-nav" aria-label="Footer">
+    <div class="footer-nav__inner">
+      <div class="footer-nav__links">
+        <a href="/">Home</a>
+        <a href="/contact">Contact</a>
+      </div>
+      <a class="footer-nav__logo" href="/" aria-label="STUDIOLAND MGMT home">
+        <img src="assets/logo.svg" alt="STUDIOLAND MGMT" />
+      </a>
+    </div>
+  </nav>
+
+  <div class="copyright">&copy;2026 Studioland MGMT</div>
+
+  <script src="engineer.js"></script>
+</body>
+</html>

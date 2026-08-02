@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 360" role="img" aria-label="Studioland drum mascot">
+  <!-- Placeholder mascot. Drop the real BUZZ artwork in as assets/mascot.svg
+       (or .png and update the <img src> in the HTML). -->
+  <g stroke="#262626" stroke-width="9" stroke-linecap="round" stroke-linejoin="round">
+
+    <!-- legs -->
+    <path d="M118 232v52l-14 26" fill="none" />
+    <path d="M162 232v52l16 26" fill="none" />
+    <!-- shoes -->
+    <ellipse cx="92"  cy="322" rx="30" ry="17" fill="#f6f1e4" />
+    <ellipse cx="190" cy="322" rx="30" ry="17" fill="#f6f1e4" />
+
+    <!-- arms -->
+    <path d="M62 150l-30 30 6 34" fill="none" />
+    <path d="M216 138l30-34 14-8" fill="none" />
+    <!-- gloves -->
+    <circle cx="38"  cy="222" r="21" fill="#f6f1e4" />
+    <g fill="#f6f1e4">
+      <circle cx="262" cy="90" r="20" />
+      <path d="M252 76l-4-22M262 72l0-24M274 78l6-22" fill="none" />
+    </g>
+
+    <!-- drum body -->
+    <circle cx="140" cy="140" r="86" fill="#f6f1e4" />
+    <circle cx="140" cy="140" r="70" fill="none" stroke-width="6" />
+    <!-- lugs -->
+    <g fill="#262626" stroke="none">
+      <circle cx="140" cy="60"  r="6" />
+      <circle cx="196" cy="84"  r="6" />
+      <circle cx="220" cy="140" r="6" />
+      <circle cx="196" cy="196" r="6" />
+      <circle cx="140" cy="220" r="6" />
+      <circle cx="84"  cy="196" r="6" />
+      <circle cx="60"  cy="140" r="6" />
+      <circle cx="84"  cy="84"  r="6" />
+    </g>
+
+    <!-- face -->
+    <g fill="#f6f1e4" stroke-width="7">
+      <ellipse cx="116" cy="122" rx="19" ry="23" />
+      <ellipse cx="166" cy="122" rx="19" ry="23" />
+    </g>
+    <g fill="#262626" stroke="none">
+      <circle cx="120" cy="126" r="9" />
+      <circle cx="170" cy="126" r="9" />
+    </g>
+    <path d="M104 160c10 22 62 22 74 0" fill="#262626" stroke-width="7" />
+    <g fill="#f6f1e4" stroke="none">
+      <rect x="128" y="162" width="12" height="13" rx="2" />
+      <rect x="144" y="162" width="12" height="13" rx="2" />
+    </g>
+  </g>
+</svg>

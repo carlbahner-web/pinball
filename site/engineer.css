@@ -1,0 +1,482 @@
+/* ==========================================================================
+   STUDIOLAND MGMT — Engineer profile page
+   All design tokens live in :root. Change them here, not in the rules below.
+   ========================================================================== */
+
+:root {
+  /* ---- Color ---- */
+  --yellow:        #f2b930;   /* page background */
+  --yellow-speck:  #e07a2f;   /* the little orange specks in the paper */
+  --ink:           #262626;   /* torn card / dark band color */
+  --cream:         #f6f1e4;   /* top bar + card text */
+  --teal:          #a9c6c2;   /* footer nav band */
+  --teal-dark:     #4d7a7c;   /* copyright bar */
+
+  /* ---- Type ---- */
+  /* Swap these two for the real Showit fonts when you have the files
+     (see the @font-face block at the bottom of this file). */
+  --font-display: "Anton", "Oswald", "Arial Narrow", sans-serif;
+  --font-body:    "Space Grotesk", ui-monospace, "SF Mono", "Courier New", monospace;
+
+  --display-track: 0.04em;   /* letter-spacing on headings */
+  --body-track:    0.05em;   /* letter-spacing on body copy */
+
+  /* ---- Layout ---- */
+  --page-max:   1280px;   /* max content width */
+  --gutter:     28px;     /* space between the two columns */
+  --card-pad:   38px;     /* inner padding of a torn card */
+  --radius:     22px;     /* base card corner before the rough filter */
+
+  /* ---- Torn paper edge ---- */
+  --tear:       7px;      /* how far the torn edge bleeds past the content box */
+}
+
+/* ==========================================================================
+   Reset-ish
+   ========================================================================== */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  -webkit-text-size-adjust: 100%;
+  /* the torn edges bleed sideways past the viewport on mobile */
+  overflow-x: hidden;
+}
+
+figure, h1, h2, dl, dd { margin: 0; }
+
+body {
+  margin: 0;
+  overflow-x: hidden;
+  font-family: var(--font-body);
+  letter-spacing: var(--body-track);
+  color: var(--ink);
+  background-color: var(--yellow);
+  /* paper specks: a few offset dot layers so the pattern doesn't read as a grid */
+  background-image:
+    radial-gradient(circle at 12% 8%,  var(--yellow-speck) 0 1.1px, transparent 1.2px),
+    radial-gradient(circle at 63% 34%, var(--yellow-speck) 0 0.9px, transparent 1px),
+    radial-gradient(circle at 31% 77%, var(--yellow-speck) 0 1.3px, transparent 1.4px),
+    radial-gradient(circle at 87% 61%, var(--yellow-speck) 0 0.8px, transparent 0.9px);
+  background-size: 220px 190px, 310px 260px, 170px 230px, 260px 340px;
+}
+
+img { max-width: 100%; display: block; }
+a   { color: inherit; text-decoration: none; }
+
+/* Hidden SVG that holds the rough-edge filter */
+.svg-defs { position: absolute; width: 0; height: 0; overflow: hidden; }
+
+/* Screen-reader only */
+.sr-only {
+  position: absolute; width: 1px; height: 1px;
+  padding: 0; margin: -1px; overflow: hidden;
+  clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+
+/* ==========================================================================
+   Torn-paper card
+   A pseudo-element carries the black shape so the SVG displacement filter
+   roughs up the EDGE without smearing the text sitting on top of it.
+   ========================================================================== */
+
+.card {
+  position: relative;
+  padding: var(--card-pad);
+  color: var(--cream);
+}
+
+.card::before {
+  content: "";
+  position: absolute;
+  inset: calc(var(--tear) * -1);
+  background: var(--ink);
+  border-radius: var(--radius);
+  filter: url(#rough-edge);
+  z-index: 0;
+}
+
+.card > * { position: relative; z-index: 1; }
+
+/* ==========================================================================
+   Top bar
+   ========================================================================== */
+
+.topbar {
+  background: var(--cream);
+  border-bottom: 2px solid rgba(38, 38, 38, 0.12);
+}
+
+.topbar__inner {
+  max-width: var(--page-max);
+  margin: 0 auto;
+  padding: 14px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.topbar__logo img { height: 46px; width: auto; }
+
+.topbar__nav {
+  display: flex;
+  gap: 28px;
+  font-family: var(--font-display);
+  font-size: 17px;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.topbar__nav a { padding: 6px 2px; }
+.topbar__nav a:hover { opacity: 0.6; }
+
+/* Hamburger — mobile only */
+.topbar__menu {
+  display: none;
+  background: none;
+  border: 0;
+  padding: 8px;
+  cursor: pointer;
+  line-height: 0;
+}
+
+.topbar__menu span {
+  display: block;
+  width: 26px;
+  height: 3px;
+  margin: 4px 0;
+  background: var(--ink);
+  border-radius: 1px;
+}
+
+/* ==========================================================================
+   Main grid — two columns on desktop, one stacked column on mobile
+   ========================================================================== */
+
+.page {
+  max-width: var(--page-max);
+  margin: 0 auto;
+  padding: 58px 32px 40px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: calc(var(--gutter) * 1.6) var(--gutter);
+  align-items: start;
+}
+
+/* Right column wrapper: on desktop this IS the bio card (name + copy in one
+   torn shape). On mobile it dissolves (display: contents) so the name band and
+   the bio band become separate full-bleed sections with the photo between. */
+.bio-card { grid-column: 2; grid-row: 1; }
+
+.photo-card   { grid-column: 1; grid-row: 1; }
+.qa-card      { grid-column: 1; grid-row: 2; }
+.spotify-card { grid-column: 2; grid-row: 2; }
+
+/* ---- Name block ---- */
+
+.name-block { text-align: center; }
+
+.name-block h1 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(34px, 3.4vw, 46px);
+  line-height: 1;
+  letter-spacing: var(--display-track);
+  text-transform: uppercase;
+}
+
+.name-block p {
+  margin: 10px 0 0;
+  font-family: var(--font-display);
+  font-size: clamp(15px, 1.4vw, 19px);
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--yellow);
+}
+
+/* ---- Bio copy ---- */
+
+.bio-body { margin-top: 26px; }
+
+.bio-body p {
+  margin: 0 0 1.15em;
+  font-size: 15px;
+  line-height: 1.75;
+}
+
+.bio-body p:last-child { margin-bottom: 0; }
+
+/* ---- Photo ---- */
+
+.photo-card { --card-pad: 16px; }
+.photo-card img { width: 100%; height: auto; }
+
+/* ---- Q&A ---- */
+
+.qa-card h2,
+.spotify-card h2 {
+  margin: 0 0 30px;
+  font-family: var(--font-display);
+  font-size: clamp(24px, 2.2vw, 31px);
+  line-height: 1.15;
+  letter-spacing: var(--display-track);
+  text-transform: uppercase;
+  text-align: center;
+}
+
+.qa { margin: 0; }
+
+.qa dt {
+  font-size: 15px;
+  line-height: 1.6;
+  margin-bottom: 1.1em;
+}
+
+.qa dd {
+  margin: 0 0 1.9em;
+  font-size: 15px;
+  line-height: 1.75;
+}
+
+.qa dd:last-child { margin-bottom: 0; }
+
+/* ---- Spotify ---- */
+
+.spotify-card { --card-pad: 22px; }
+.spotify-card h2 { margin-bottom: 20px; }
+
+.spotify-embed iframe {
+  display: block;
+  width: 100%;
+  height: 580px;
+  border: 0;
+  border-radius: 12px;
+}
+
+/* Shown when no playlist id is set yet */
+.spotify-embed__placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  min-height: 260px;
+  padding: 30px;
+  border: 2px dashed rgba(246, 241, 228, 0.4);
+  border-radius: 12px;
+  font-size: 13px;
+  line-height: 1.7;
+  color: rgba(246, 241, 228, 0.75);
+}
+
+/* ==========================================================================
+   Footer
+   ========================================================================== */
+
+.mascot-row {
+  max-width: var(--page-max);
+  margin: 0 auto;
+  padding: 30px 32px 70px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(24px, 5vw, 70px);
+  flex-wrap: wrap;
+}
+
+.mascot-row__mascot { width: clamp(120px, 14vw, 190px); }
+
+.social {
+  display: flex;
+  align-items: center;
+  gap: clamp(20px, 4vw, 56px);
+}
+
+.social a { display: block; }
+.social a:hover { transform: rotate(-3deg) scale(1.05); }
+.social svg { width: clamp(50px, 6vw, 84px); height: auto; }
+
+.footer-nav {
+  background: var(--teal);
+  padding: 34px 32px;
+}
+
+.footer-nav__inner {
+  max-width: var(--page-max);
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.footer-nav__links {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-family: var(--font-display);
+  font-size: clamp(20px, 2.2vw, 30px);
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.footer-nav__links a:hover { opacity: 0.65; }
+.footer-nav__logo img { height: clamp(54px, 6vw, 82px); width: auto; }
+
+.copyright {
+  background: var(--teal-dark);
+  color: var(--cream);
+  text-align: center;
+  padding: 16px;
+  font-family: var(--font-display);
+  font-size: 13px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* ==========================================================================
+   Mobile — cards become full-bleed torn bands
+   ========================================================================== */
+
+@media (max-width: 900px) {
+
+  .topbar__nav  { display: none; }
+  .topbar__menu { display: block; }
+  .topbar__inner { padding: 12px 20px; flex-wrap: wrap; }
+  .topbar__logo img { height: 38px; }
+
+  /* menu opens as a full-width list under the bar */
+  .topbar__nav.is-open {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    width: 100%;
+    padding: 12px 0 6px;
+    border-top: 2px solid rgba(38, 38, 38, 0.12);
+    font-size: 19px;
+  }
+
+  .page { padding: 0 0 30px; }
+
+  .grid {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  /* Dissolve the desktop bio card so its two halves can be reordered.
+     display: contents still generates ::before in Chrome, and with no
+     positioned ancestor left it would size itself to the viewport — so kill
+     it explicitly. */
+  .bio-card { display: contents; }
+  .bio-card::before { content: none; }
+
+  /* single column: name → photo → bio → spotify → Q&A */
+  .name-block   { order: 1; }
+  .photo-card   { order: 2; }
+  .bio-body     { order: 3; }
+  .spotify-card { order: 4; }
+  .qa-card      { order: 5; }
+
+  .grid > * { grid-column: 1; grid-row: auto; }
+
+  /* Full-bleed dark bands. The rough filter bleeds sideways past the
+     viewport, which is why body has overflow-x: hidden. */
+  .name-block,
+  .bio-body,
+  .qa-card,
+  .spotify-card {
+    position: relative;
+    padding: 34px 24px;
+    margin: 0;
+    color: var(--cream);
+  }
+
+  .name-block::before,
+  .bio-body::before,
+  .qa-card::before,
+  .spotify-card::before {
+    content: "";
+    position: absolute;
+    top: calc(var(--tear) * -1);
+    bottom: calc(var(--tear) * -1);
+    left: -20px;
+    right: -20px;
+    background: var(--ink);
+    border-radius: var(--radius);
+    filter: url(#rough-edge);
+    z-index: 0;
+  }
+
+  .name-block > *,
+  .bio-body > *,
+  .qa-card > *,
+  .spotify-card > * { position: relative; z-index: 1; }
+
+  .name-block { padding-top: 30px; padding-bottom: 30px; }
+  .name-block h1 { font-size: 34px; }
+
+  /* yellow breathing room between the bands */
+  .photo-card { padding: 30px 24px; }
+  .photo-card::before { inset: 24px 18px; border-radius: 14px; }
+
+  .bio-body   { margin-top: 0; }
+  .spotify-card { margin-top: 34px; }
+  .qa-card      { margin-top: 34px; }
+
+  .spotify-embed iframe { height: 460px; }
+
+  .mascot-row {
+    padding: 44px 24px 50px;
+    gap: 20px;
+    flex-wrap: nowrap;
+  }
+
+  .mascot-row__mascot { width: 130px; }
+
+  .social {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .social svg { width: 46px; }
+
+  .footer-nav { padding: 26px 24px; }
+  .footer-nav__links { font-size: 21px; }
+}
+
+@media (max-width: 420px) {
+  .name-block h1 { font-size: 29px; }
+  .bio-body p, .qa dt, .qa dd { font-size: 14px; }
+}
+
+/* Respect reduced motion / reduced transparency users */
+@media (prefers-reduced-motion: reduce) {
+  .social a:hover { transform: none; }
+}
+
+/* ==========================================================================
+   Real fonts
+   Drop the licensed files in site/assets/fonts/ and uncomment. Then delete
+   the Google Fonts <link> from the HTML head.
+   ==========================================================================
+@font-face {
+  font-family: "Studioland Display";
+  src: url("assets/fonts/display.woff2") format("woff2");
+  font-weight: 400 900;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Studioland Body";
+  src: url("assets/fonts/body.woff2") format("woff2");
+  font-weight: 400 700;
+  font-display: swap;
+}
+:root {
+  --font-display: "Studioland Display", sans-serif;
+  --font-body:    "Studioland Body", monospace;
+}
+*/

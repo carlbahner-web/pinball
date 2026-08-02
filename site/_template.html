@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ENGINEER NAME — STUDIOLAND MGMT</title>
+  <meta name="description" content="ENGINEER NAME — ROLE. Engineer profile at STUDIOLAND MGMT." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="engineer.css" />
+</head>
+<body>
+
+  <svg class="svg-defs" aria-hidden="true" focusable="false">
+    <filter id="rough-edge">
+      <feTurbulence type="fractalNoise" baseFrequency="0.022" numOctaves="4" seed="7" result="noise" />
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="13" xChannelSelector="R" yChannelSelector="G" />
+    </filter>
+  </svg>
+
+  <header class="topbar">
+    <div class="topbar__inner">
+      <a class="topbar__logo" href="/" aria-label="STUDIOLAND MGMT home">
+        <img src="assets/logo.svg" alt="STUDIOLAND MGMT" />
+      </a>
+
+      <button class="topbar__menu" type="button" aria-label="Menu" aria-expanded="false" aria-controls="primary-nav">
+        <span></span><span></span><span></span>
+      </button>
+
+      <nav class="topbar__nav" id="primary-nav">
+        <a href="/contact">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="page">
+    <div class="grid">
+
+      <figure class="card photo-card">
+        <img src="assets/ENGINEER-SLUG.jpg" alt="ENGINEER NAME"
+             onerror="this.src='assets/photo-placeholder.svg'" />
+      </figure>
+
+      <article class="card bio-card">
+        <header class="name-block">
+          <h1>Engineer Name</h1>
+          <p>Role, Role, Role</p>
+        </header>
+
+        <div class="bio-body">
+          <p>Bio paragraph one.</p>
+          <p>Bio paragraph two.</p>
+          <p>Bio paragraph three.</p>
+          <p>Bio paragraph four.</p>
+        </div>
+      </article>
+
+      <section class="card qa-card">
+        <h2>Get to know NAME<br />in four questions:</h2>
+
+        <dl class="qa">
+          <dt>1. Question?</dt>
+          <dd>Answer.</dd>
+
+          <dt>2. Question?</dt>
+          <dd>Answer.</dd>
+
+          <dt>3. Question?</dt>
+          <dd>Answer.</dd>
+
+          <dt>4. Question?</dt>
+          <dd>Answer.</dd>
+        </dl>
+      </section>
+
+      <section class="card spotify-card">
+        <h2 class="sr-only">ENGINEER NAME credits playlist</h2>
+        <div class="spotify-embed"
+             data-playlist=""
+             data-title="ENGINEER NAME Credits"></div>
+      </section>
+
+    </div>
+  </main>
+
+  <div class="mascot-row">
+    <img class="mascot-row__mascot" src="assets/mascot.svg" alt="" aria-hidden="true" />
+
+    <nav class="social" aria-label="ENGINEER NAME elsewhere">
+      <a href="#" aria-label="Website">
+        <svg viewBox="0 0 100 100" fill="none" stroke="#f6f1e4" stroke-width="6"
+             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M14 86V44C14 25 30 12 50 12s36 13 36 32v42z" />
+          <path d="M14 62h72M22 40h56" />
+          <path d="M50 12c-11 12-15 30-15 42v32M50 12c11 12 15 30 15 42v32" />
+        </svg>
+      </a>
+      <a href="#" aria-label="Instagram">
+        <svg viewBox="0 0 100 100" fill="none" stroke="#f6f1e4" stroke-width="6"
+             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="16" y="16" width="68" height="68" rx="20" />
+          <circle cx="50" cy="50" r="17" />
+          <circle cx="70" cy="30" r="3.5" fill="#f6f1e4" />
+        </svg>
+      </a>
+      <a href="#" aria-label="Email">
+        <svg viewBox="0 0 100 100" fill="none" stroke="#f6f1e4" stroke-width="6"
+             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="10" y="24" width="80" height="52" rx="6" />
+          <path d="M10 30l40 28 40-28" />
+        </svg>
+      </a>
+    </nav>
+  </div>
+
+  <nav class="footer-nav" aria-label="Footer">
+    <div class="footer-nav__inner">
+      <div class="footer-nav__links">
+        <a href="/">Home</a>
+        <a href="/contact">Contact</a>
+      </div>
+      <a class="footer-nav__logo" href="/" aria-label="STUDIOLAND MGMT home">
+        <img src="assets/logo.svg" alt="STUDIOLAND MGMT" />
+      </a>
+    </div>
+  </nav>
+
+  <div class="copyright">&copy;2026 Studioland MGMT</div>
+
+  <script src="engineer.js"></script>
+</body>
+</html>

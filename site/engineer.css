@@ -3,23 +3,38 @@
    All design tokens live in :root. Change them here, not in the rules below.
    ========================================================================== */
 
+/* Canonical palette — SL_REF_Visual_Brand_Bible_v2, Part 1.1.
+   One value per color. Do not introduce a hex that isn't in this block. */
 :root {
-  /* ---- Color ---- */
-  --yellow:        #f2b930;   /* page background */
-  --yellow-speck:  #e07a2f;   /* the little orange specks in the paper */
-  --ink:           #262626;   /* torn card / dark band color */
-  --cream:         #f6f1e4;   /* top bar + card text */
-  --teal:          #a9c6c2;   /* footer nav band */
-  --teal-dark:     #4d7a7c;   /* copyright bar */
+  --charcoal:       #2C2C2A;   /* primary dark: text, grounds, outlines */
+  --cream:          #fcf7e8;   /* BUZZ Off-White — the one and only cream */
+  --harbor-teal:    #3A6168;   /* signature brand color */
+  --rusty-turnstile:#BF7538;   /* primary warm accent */
+  --midway-mustard: #F6CC60;   /* highlight yellow */
+  --foggy-mint:     #BFCDC0;   /* soft secondary */
+  --brand-red:      #c05838;   /* warm brand red — grounds, illustration, costs */
+  --neon-green:     #50ad33;   /* the one green — success, money, CTAs */
+  --cta-red:        #FE3636;   /* actions and DANGER only, never decorative */
 
-  /* ---- Type ---- */
-  /* Swap these two for the real Showit fonts when you have the files
-     (see the @font-face block at the bottom of this file). */
-  --font-display: "Anton", "Oswald", "Arial Narrow", sans-serif;
-  --font-body:    "Space Grotesk", ui-monospace, "SF Mono", "Courier New", monospace;
+  /* Roles on this page (point these at palette entries, not raw hexes) */
+  --ground:      var(--midway-mustard);  /* the page's textured ground */
+  --ink:         var(--charcoal);        /* torn Box1 panels */
+  --ink-on-dark: var(--cream);           /* type inside the panels */
+  --band-soft:   var(--foggy-mint);      /* footer nav band */
+  --band-deep:   var(--harbor-teal);     /* copyright bar */
+  --accent:      var(--midway-mustard);  /* the role line under the name */
+
+  /* ---- Type — two fonts, that is the whole system (1.2) ----
+     The @font-face block below points at the real faces. The stacks behind
+     them are LOAD-TIME FALLBACKS ONLY (a condensed sans behind DW Fairfield,
+     a humanist sans behind TAY Wingman) — never the intended look. */
+  --font-display: "DW Fairfield", "DW Fairfield Narrow",
+                  "Arial Narrow", "Helvetica Neue Condensed", sans-serif;
+  --font-body:    "TAY Wingman",
+                  "Avenir Next", "Segoe UI", system-ui, sans-serif;
 
   --display-track: 0.04em;   /* letter-spacing on headings */
-  --body-track:    0.05em;   /* letter-spacing on body copy */
+  --body-track:    0.03em;   /* letter-spacing on body copy */
 
   /* ---- Layout ---- */
   --page-max:   1280px;   /* max content width */
@@ -27,8 +42,11 @@
   --card-pad:   38px;     /* inner padding of a torn card */
   --radius:     22px;     /* base card corner before the rough filter */
 
-  /* ---- Torn paper edge ---- */
+  /* ---- Torn paper edge / boil (2.6) ----
+     --edge is swapped between three seeded filters on an 8fps clock by
+     engineer.js. Set data-boil="off" on <html> to hold it still. */
   --tear:       7px;      /* how far the torn edge bleeds past the content box */
+  --edge:       url(#rough-edge-0);
 }
 
 /* ==========================================================================
@@ -45,20 +63,19 @@ html {
 
 figure, h1, h2, dl, dd { margin: 0; }
 
+/* Tier 1 — the paper GRAIN (2.2). Carl's real overlay PNG, multiplied over
+   the ground. No code-generated noise: one grain source, applied everywhere.
+   Drop the file in as assets/noise.webp; until then the ground renders flat. */
 body {
   margin: 0;
   overflow-x: hidden;
   font-family: var(--font-body);
   letter-spacing: var(--body-track);
-  color: var(--ink);
-  background-color: var(--yellow);
-  /* paper specks: a few offset dot layers so the pattern doesn't read as a grid */
-  background-image:
-    radial-gradient(circle at 12% 8%,  var(--yellow-speck) 0 1.1px, transparent 1.2px),
-    radial-gradient(circle at 63% 34%, var(--yellow-speck) 0 0.9px, transparent 1px),
-    radial-gradient(circle at 31% 77%, var(--yellow-speck) 0 1.3px, transparent 1.4px),
-    radial-gradient(circle at 87% 61%, var(--yellow-speck) 0 0.8px, transparent 0.9px);
-  background-size: 220px 190px, 310px 260px, 170px 230px, 260px 340px;
+  color: var(--charcoal);
+  background-color: var(--ground);
+  background-image: url("assets/noise.webp");
+  background-repeat: repeat;
+  background-blend-mode: multiply;   /* multiply only — normal desaturates */
 }
 
 img { max-width: 100%; display: block; }
@@ -92,11 +109,26 @@ a   { color: inherit; text-decoration: none; }
   inset: calc(var(--tear) * -1);
   background: var(--ink);
   border-radius: var(--radius);
-  filter: url(#rough-edge);
+  filter: var(--edge);
   z-index: 0;
 }
 
 .card > * { position: relative; z-index: 1; }
+
+/* Tier 2 — the weathering PLATE (2.2). Add `card--weathered` to give a panel
+   its own pass of print wear. The plate lands on the panel's GROUND only; the
+   contents stay clean on top (the weathered-panel pattern).
+   Rules baked in below: the sheet is used WHOLE and fitted (100% 100%, never
+   cropped-and-tiled), and it multiplies (normal blend desaturates).
+   Drop a distress sheet in as assets/plate-01.png — stored density-on-white,
+   no alpha. Give neighbouring panels different sheets so no two carry
+   identical marks. */
+.card--weathered::before {
+  background-image: url("assets/plate-01.png");
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  background-blend-mode: multiply;
+}
 
 /* ==========================================================================
    Top bar
@@ -104,7 +136,7 @@ a   { color: inherit; text-decoration: none; }
 
 .topbar {
   background: var(--cream);
-  border-bottom: 2px solid rgba(38, 38, 38, 0.12);
+  border-bottom: 2px solid rgba(44, 44, 42, 0.14);
 }
 
 .topbar__inner {
@@ -195,7 +227,7 @@ a   { color: inherit; text-decoration: none; }
   font-size: clamp(15px, 1.4vw, 19px);
   letter-spacing: 0.11em;
   text-transform: uppercase;
-  color: var(--yellow);
+  color: var(--accent);
 }
 
 /* ---- Bio copy ---- */
@@ -265,11 +297,11 @@ a   { color: inherit; text-decoration: none; }
   text-align: center;
   min-height: 260px;
   padding: 30px;
-  border: 2px dashed rgba(246, 241, 228, 0.4);
+  border: 2px dashed rgba(252, 247, 232, 0.4);
   border-radius: 12px;
   font-size: 13px;
   line-height: 1.7;
-  color: rgba(246, 241, 228, 0.75);
+  color: rgba(252, 247, 232, 0.75);
 }
 
 /* ==========================================================================
@@ -300,7 +332,7 @@ a   { color: inherit; text-decoration: none; }
 .social svg { width: clamp(50px, 6vw, 84px); height: auto; }
 
 .footer-nav {
-  background: var(--teal);
+  background: var(--band-soft);
   padding: 34px 32px;
 }
 
@@ -327,7 +359,7 @@ a   { color: inherit; text-decoration: none; }
 .footer-nav__logo img { height: clamp(54px, 6vw, 82px); width: auto; }
 
 .copyright {
-  background: var(--teal-dark);
+  background: var(--band-deep);
   color: var(--cream);
   text-align: center;
   padding: 16px;
@@ -355,7 +387,7 @@ a   { color: inherit; text-decoration: none; }
     gap: 4px;
     width: 100%;
     padding: 12px 0 6px;
-    border-top: 2px solid rgba(38, 38, 38, 0.12);
+    border-top: 2px solid rgba(44, 44, 42, 0.14);
     font-size: 19px;
   }
 
@@ -406,7 +438,7 @@ a   { color: inherit; text-decoration: none; }
     right: -20px;
     background: var(--ink);
     border-radius: var(--radius);
-    filter: url(#rough-edge);
+    filter: var(--edge);
     z-index: 0;
   }
 
@@ -459,24 +491,33 @@ a   { color: inherit; text-decoration: none; }
 }
 
 /* ==========================================================================
-   Real fonts
-   Drop the licensed files in site/assets/fonts/ and uncomment. Then delete
-   the Google Fonts <link> from the HTML head.
-   ==========================================================================
+   The two brand faces (1.2)
+   Drop the licensed files in site/assets/fonts/ under these names and they
+   render. Until then the stacks in :root fall through to a condensed sans /
+   humanist sans — load-time fallbacks only, never the intended look.
+   DW Fairfield has ONE weight. Do not fake a heavier cut with synthetic bold.
+   ========================================================================== */
+
 @font-face {
-  font-family: "Studioland Display";
-  src: url("assets/fonts/display.woff2") format("woff2");
-  font-weight: 400 900;
+  font-family: "DW Fairfield";
+  src: url("assets/fonts/DWFairfield.woff2") format("woff2");
+  font-weight: normal;
+  font-style: normal;
   font-display: swap;
 }
+
 @font-face {
-  font-family: "Studioland Body";
-  src: url("assets/fonts/body.woff2") format("woff2");
-  font-weight: 400 700;
+  font-family: "DW Fairfield Narrow";
+  src: url("assets/fonts/DWFairfieldNarrow.woff2") format("woff2");
+  font-weight: normal;
+  font-style: normal;
   font-display: swap;
 }
-:root {
-  --font-display: "Studioland Display", sans-serif;
-  --font-body:    "Studioland Body", monospace;
+
+@font-face {
+  font-family: "TAY Wingman";
+  src: url("assets/fonts/TAYWingman.woff2") format("woff2");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
 }
-*/

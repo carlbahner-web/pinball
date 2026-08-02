@@ -1,8 +1,52 @@
 /* STUDIOLAND MGMT — engineer profile page behavior.
-   Two small jobs: the mobile menu toggle and the Spotify embed. */
+   Three small jobs: the boil, the mobile menu toggle, and the Spotify embed. */
 
 (function () {
   'use strict';
+
+  /* ---- The boil (Brand Bible 2.6) -------------------------------------
+     The signature motion: the same stroke redrawn slightly differently on a
+     ~8fps three-phase clock, like cels traced by hand. Every torn panel edge
+     reads off --edge, so cycling that one variable boils the whole page.
+
+     What deliberately does NOT boil, per the rules:
+       - text (labels stay crisp above the boiling shapes)
+       - the photo (finished artwork never warps — the panel behind it boils
+         instead, which is the "boiling silhouette" rule)
+       - anything with dense repeating marks (nothing here has them)
+
+     Held still for prefers-reduced-motion, for a hidden tab, and for
+     <html data-boil="off">. */
+
+  var PHASES = ['url(#rough-edge-0)', 'url(#rough-edge-1)', 'url(#rough-edge-2)'];
+  var FRAME_MS = 125;                     // 8fps
+  var root = document.documentElement;
+
+  var stillWanted =
+    root.getAttribute('data-boil') === 'off' ||
+    (window.matchMedia &&
+     window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+
+  if (!stillWanted) {
+    var phase = 0;
+    var last = 0;
+
+    var tick = function (now) {
+      if (now - last >= FRAME_MS) {
+        last = now;
+        phase = (phase + 1) % PHASES.length;
+        root.style.setProperty('--edge', PHASES[phase]);
+      }
+      if (!document.hidden) requestAnimationFrame(tick);
+    };
+
+    requestAnimationFrame(tick);
+
+    // rAF stops in a background tab; restart the clock when we come back
+    document.addEventListener('visibilitychange', function () {
+      if (!document.hidden) { last = 0; requestAnimationFrame(tick); }
+    });
+  }
 
   /* ---- Mobile menu ---------------------------------------------------- */
 

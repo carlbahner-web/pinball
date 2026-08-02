@@ -6,20 +6,28 @@
   <title>Yago Mann — STUDIOLAND MGMT</title>
   <meta name="description" content="Yago Mann — producer, mixer, guitarist. Engineer profile at STUDIOLAND MGMT." />
 
-  <!-- Stand-in fonts. Swap for the licensed Showit fonts — see engineer.css. -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet" />
-
+  <!-- Fonts are DW Fairfield + TAY Wingman, loaded from assets/fonts/ by
+       engineer.css. No third-party font host. -->
   <link rel="stylesheet" href="engineer.css" />
 </head>
+<!-- data-boil="off" holds the linework still. -->
 <body>
 
-  <!-- Rough torn-paper edge filter. Bump `scale` for a more shredded edge,
-       `baseFrequency` for finer/coarser tearing. -->
+  <!-- The torn Box1 edge, and the BOIL (Brand Bible 2.6): three redraws of the
+       same stroke, cycled on an 8fps clock by engineer.js. Tune the tear with
+       `scale` (how violent) and `baseFrequency` (how fine); change the seeds
+       to get a different tear on a different page. -->
   <svg class="svg-defs" aria-hidden="true" focusable="false">
-    <filter id="rough-edge">
+    <filter id="rough-edge-0">
       <feTurbulence type="fractalNoise" baseFrequency="0.022" numOctaves="4" seed="7" result="noise" />
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="13" xChannelSelector="R" yChannelSelector="G" />
+    </filter>
+    <filter id="rough-edge-1">
+      <feTurbulence type="fractalNoise" baseFrequency="0.022" numOctaves="4" seed="23" result="noise" />
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="13" xChannelSelector="R" yChannelSelector="G" />
+    </filter>
+    <filter id="rough-edge-2">
+      <feTurbulence type="fractalNoise" baseFrequency="0.022" numOctaves="4" seed="41" result="noise" />
       <feDisplacementMap in="SourceGraphic" in2="noise" scale="13" xChannelSelector="R" yChannelSelector="G" />
     </filter>
   </svg>
@@ -109,26 +117,29 @@
 
     <nav class="social" aria-label="Yago Mann elsewhere">
       <a href="#" aria-label="Website">
-        <svg viewBox="0 0 100 100" fill="none" stroke="#f6f1e4" stroke-width="6"
+        <svg viewBox="-16 -18 132 134" fill="none" stroke="#fcf7e8" stroke-width="6"
              stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <path d="M14 86V44C14 25 30 12 50 12s36 13 36 32v42z" />
           <path d="M14 62h72M22 40h56" />
           <path d="M50 12c-11 12-15 30-15 42v32M50 12c11 12 15 30 15 42v32" />
+          <path class="ray" d="M-1 24l-11-9M23 3l-6-12M50 -6V-17M77 3l6-12M101 24l11-9" />
         </svg>
       </a>
       <a href="#" aria-label="Instagram">
-        <svg viewBox="0 0 100 100" fill="none" stroke="#f6f1e4" stroke-width="6"
+        <svg viewBox="-16 -18 132 134" fill="none" stroke="#fcf7e8" stroke-width="6"
              stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <rect x="16" y="16" width="68" height="68" rx="20" />
           <circle cx="50" cy="50" r="17" />
-          <circle cx="70" cy="30" r="3.5" fill="#f6f1e4" />
+          <circle cx="70" cy="30" r="3.5" fill="#fcf7e8" />
+          <path class="ray" d="M4 6l-9-9M50 -2v-13M96 6l9-9M4 94l-9 9M96 94l9 9" />
         </svg>
       </a>
       <a href="#" aria-label="Email">
-        <svg viewBox="0 0 100 100" fill="none" stroke="#f6f1e4" stroke-width="6"
+        <svg viewBox="-16 -18 132 134" fill="none" stroke="#fcf7e8" stroke-width="6"
              stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <rect x="10" y="24" width="80" height="52" rx="6" />
           <path d="M10 30l40 28 40-28" />
+          <path class="ray" d="M0 14l-9-10M28 6l-4-13M72 6l4-13M100 14l9-10" />
         </svg>
       </a>
     </nav>

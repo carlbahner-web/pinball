@@ -34,7 +34,7 @@
                   "Avenir Next", "Segoe UI", system-ui, sans-serif;
 
   --display-track: 0.02em;   /* letter-spacing on headings */
-  --body-track:    0.03em;   /* letter-spacing on body copy */
+  --body-track:    0;         /* TAY Wingman is already wide — no extra */
 
   /* ---- Layout ---- */
   --page-max:   1280px;   /* max content width */

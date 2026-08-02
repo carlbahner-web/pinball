@@ -15,9 +15,9 @@ site/
   fetch-assets.sh     mirrors the live brand assets here for offline work
   assets/
     yago-mann.jpg           low-res crop out of the screenshot — replace
-    logo-placeholder.svg    stand-ins that only appear if the real
-    mascot-placeholder.svg  asset 404s (see "How assets resolve")
-    photo-placeholder.svg
+    logo.png                the real plain wordmark, cream build
+    mascot-placeholder.svg  stand-ins that only appear if the real
+    photo-placeholder.svg   asset 404s (see "How assets resolve")
 ```
 
 ## Preview locally
@@ -42,25 +42,28 @@ nothing to copy:
 
 | Path | What |
 |---|---|
-| `/assets/studioland_mgmt_1.png` | the MGMT lockup, header + footer |
+| `/assets/studioland_mgmt_1.png` | the MGMT lockup, header + footer (falls back to the committed `assets/logo.png`) |
 | `/assets/Buzz%20The%20Mascot5.png` | BUZZ in the footer |
 | `/assets/website-noise.webp` | the paper grain (`-2`/`-3` are alternate cuts) |
 | `/fonts/dwfairfield-webfont.woff2` + `.woff` | display face |
 | `/fonts/TAYWingman.woff2` + `.woff` | body face |
 
-Every image also carries an `onerror` fallback to a placeholder in
-`assets/`, so a missing file degrades to a stand-in instead of a broken icon.
-That's what you're seeing if the logo looks like plain typed letters — the
-real lockup 404'd. **The placeholder types the wordmark in a font, which 1.3
-forbids; it exists only so the layout renders.**
+Every image carries an `onerror` fallback, so a missing file degrades to
+something sensible instead of a broken icon.
 
-Two things worth double-checking against the live site:
+**The logo fallback is the real wordmark.** `assets/logo.png` is the plain
+STUDIOLAND mark (arrow-I signpost intact) — committed here, so nothing on
+this page ever types the wordmark in a font, which 1.3 forbids. It's the
+**cream build**, though, so it needs a dark ground: the fallback handler adds
+`logo--on-ink`, which puts a torn charcoal Box1 behind it. That's what you're
+looking at if the mark sits on a small dark chip — the MGMT lockup 404'd.
 
-- I wired the header/footer mark to **`studioland_mgmt_1.png`** (the MGMT
-  lockup, per 1.3 — this is an MGMT surface). If that file is actually the
-  plain wordmark, `logo.png` is the swap, in two places per page.
-- If these pages ever get hosted on a **different origin** than the fonts,
-  the font requests need a CORS header on them. Same origin, no issue.
+If the MGMT lockup turns out to be a cream build too, the honest fix is a
+charcoal top bar rather than a chip: `--cream` → `--charcoal` on `.topbar`,
+with the nav type flipping to cream.
+
+If these pages ever get hosted on a **different origin** than the fonts, the
+font requests need a CORS header on them. Same origin, no issue.
 
 ## Add a new engineer
 

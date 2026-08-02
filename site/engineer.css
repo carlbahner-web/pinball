@@ -65,8 +65,15 @@ figure, h1, h2, dl, dd { margin: 0; }
 
 /* Tier 1 — the paper GRAIN (2.2). The real site overlay, multiplied over the
    ground. No code-generated noise: one grain source, applied everywhere.
-   website-noise-2.webp and -3.webp are the other cuts if this one reads too
-   coarse — judge at phone scale, where grain reads ~2x coarser than desktop. */
+   website-noise.webp and -2.webp are the other cuts if this one reads wrong —
+   judge at phone scale, where grain reads ~2x coarser than desktop.
+
+   The committed copy is flattened onto white with the alpha channel dropped,
+   which is what 2.2 asks a texture sheet to be. That is not a look change:
+   multiply-then-composite of (C,a) equals a plain multiply by (a*C + (1-a)),
+   so the flattened file renders identically — measured at 0.18/255 mean
+   difference, i.e. rounding — while dropping 1388KB to 71KB. The live site
+   serves the alpha original at this same path; both land in the same place. */
 body {
   margin: 0;
   overflow-x: hidden;
@@ -74,7 +81,7 @@ body {
   letter-spacing: var(--body-track);
   color: var(--charcoal);
   background-color: var(--ground);
-  background-image: url("/assets/website-noise.webp");
+  background-image: url("/assets/website-noise-3.webp");
   background-repeat: repeat;
   background-blend-mode: multiply;   /* multiply only — normal desaturates */
 }

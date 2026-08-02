@@ -1,6 +1,5 @@
-# Not committed: the paper grain and distress sheets, mirrored by
-# fetch-assets.sh, plus the two brand faces. The logo, MGMT lockup and BUZZ
-# artwork ARE committed, so the page renders anywhere.
+# Not committed: the distress sheets for Tier-2 weathering, and the two brand
+# faces. The logo, MGMT lockup, BUZZ and the paper grain ARE committed, so the
+# page renders anywhere. fetch-assets.sh mirrors the rest.
 fonts/
-assets/website-noise*.webp
 assets/plate-*.png

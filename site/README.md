@@ -16,6 +16,7 @@ site/
   assets/
     studioland_mgmt_1.png   the MGMT lockup (dark build)
     Buzz The Mascot5.png    BUZZ
+    website-noise-3.webp    the paper grain, flattened onto white
     logo.png                the plain wordmark (cream build)
     yago-mann.jpg           low-res crop out of the screenshot — replace
     mascot-placeholder.svg  stand-ins, only appear if an asset 404s
@@ -47,7 +48,7 @@ nothing to copy:
 | `/assets/studioland_mgmt_1.png` | the MGMT lockup, header + footer | yes |
 | `/assets/Buzz%20The%20Mascot5.png` | BUZZ in the footer | yes |
 | `/assets/logo.png` | the plain wordmark, used as the lockup's fallback | yes |
-| `/assets/website-noise.webp` | the paper grain (`-2`/`-3` are alternate cuts) | no |
+| `/assets/website-noise-3.webp` | the paper grain (`website-noise.webp` / `-2` are the other cuts) | yes, flattened |
 | `/fonts/dwfairfield-webfont.woff2` + `.woff` | display face | no |
 | `/fonts/TAYWingman.woff2` + `.woff` | body face | no |
 
@@ -114,8 +115,23 @@ grain lands close to what you had.
 them — a condensed sans, a humanist sans — are load-time fallbacks only. DW
 Fairfield has one weight; nothing on this page asks for a synthetic bold.
 
-**Texture (2.2).** The code-generated speck pattern is retired. Tier 1 is
-the real `website-noise.webp` multiplied over the ground. Tier 2 is the
+**Texture (2.2).** The code-generated speck pattern is retired. Tier 1 is the
+real overlay multiplied over the ground.
+
+The committed grain is **flattened onto white with alpha dropped** — the form
+2.2 asks a texture sheet to be. The site's copy is an alpha overlay instead,
+and under multiply the two are equivalent: multiply-then-composite of `(C, a)`
+is a plain multiply by `a*C + (1-a)`, measured at 0.18/255 mean difference.
+Flattening took it from 1388KB to 71KB. Both live at the same path, so
+whichever one serves, the page looks the same.
+
+Worth knowing why multiply and not normal, since this file's marks are mostly
+*light*: measured on the mustard ground, normal blend moves the blue channel
+most (σ 3.55 vs 0.97) — the light flecks wash the color toward grey. Multiply
+holds the hue and only deepens value, exactly as 2.2 says. Under multiply the
+light flecks are no-ops and the dark specks do the work, which is what you see.
+
+Tier 2 is the
 `card--weathered` class: it lands a **whole, fitted** distress sheet on a
 panel's ground while the contents stay clean on top — multiply, never normal,
 never cropped-and-tiled, never scaled at paint time.

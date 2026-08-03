@@ -30,7 +30,7 @@
 
   var NS = 'http://www.w3.org/2000/svg';
   var CELS = 3;                  // three drawings in the cycle
-  var FPS = 12;                  // on twos: 12 drawings against a 24fps camera
+  var FPS = 8;                   // the bible's three-phase clock (2.6)
   var FRAME_MS = 1000 / FPS;
   var root = document.documentElement;
 
@@ -39,17 +39,29 @@
     (window.matchMedia &&
      window.matchMedia('(prefers-reduced-motion: reduce)').matches);
 
-  /* A closed, smooth, seeded wobble: harmonics summed around the perimeter.
+  /* A closed, smooth, seeded wobble around the perimeter.
+
+     The harmonics are chosen from the perimeter LENGTH, not from a fixed
+     count. A fixed count spreads the same few waves around whatever it is
+     drawn on, so a tall card gets long lazy curves while the little logo chip
+     gets tight ripples from identical settings — the ink reads at a different
+     size on every panel. Deriving the base harmonic from `wave` keeps the
+     wobble the same number of pixels across regardless of what it wraps.
+
      Periodic by construction, so the contour meets itself cleanly. */
   function wobble(seed) {
-    var K = 4, amp = [], phase = [], k;
     var r = seed * 9301 + 49297;
     var rand = function () { r = (r * 9301 + 49297) % 233280; return r / 233280; };
-    var norm = 0;
-    for (k = 1; k <= K; k++) { amp.push(1 / k); phase.push(rand() * Math.PI * 2); norm += 1 / k; }
-    return function (t) {
+    var phase = [rand() * Math.PI * 2, rand() * Math.PI * 2, rand() * Math.PI * 2];
+    var weight = [1, 0.45, 0.2];
+    var norm = weight[0] + weight[1] + weight[2];
+    return function (t, perimeter, wave) {
+      // how many full waves fit around this particular outline
+      var k = Math.max(1, Math.round(perimeter / wave));
       var v = 0;
-      for (var i = 0; i < K; i++) v += amp[i] * Math.sin(2 * Math.PI * (i + 1) * t + phase[i]);
+      for (var i = 0; i < 3; i++) {
+        v += weight[i] * Math.sin(2 * Math.PI * k * (i + 1) * t + phase[i]);
+      }
       return v / norm;
     };
   }
@@ -78,11 +90,15 @@
   }
 
   /* Catmull-Rom through the offset points, emitted as cubic beziers. */
-  function celPath(w, h, radius, amp, noise) {
-    var steps = Math.max(28, Math.min(150, Math.round((w + h) / 11)));
+  function celPath(w, h, radius, amp, wave, noise) {
+    var rr = Math.max(0, Math.min(radius, Math.min(w, h) / 2));
+    var perimeter = 2 * (w - 2 * rr) + 2 * (h - 2 * rr) + 2 * Math.PI * rr;
+    // enough points to resolve the shortest harmonic: three waves per sample
+    // would alias it into a different shape entirely
+    var steps = Math.round(Math.min(900, Math.max(40, perimeter / (wave / 14))));
     var base = outline(w, h, radius, steps);
     var P = base.map(function (p) {
-      var d = noise(p[4]) * amp;
+      var d = noise(p[4], perimeter, wave) * amp;
       return [p[0] + p[2] * d, p[1] + p[3] * d];
     });
     var n = P.length, d = 'M' + P[0][0].toFixed(1) + ',' + P[0][1].toFixed(1);
@@ -127,7 +143,8 @@
     panel.svg.style.height = h + 'px';
     var radius = parseFloat(cs.getPropertyValue('--cel-radius')) || 26;
     var amp = parseFloat(cs.getPropertyValue('--cel-amp')) || 6;
-    panel.d = noises.map(function (n) { return celPath(w, h, radius, amp, n); });
+    var wave = parseFloat(cs.getPropertyValue('--cel-wave')) || 130;
+    panel.d = noises.map(function (n) { return celPath(w, h, radius, amp, wave, n); });
     panel.path.setAttribute('d', panel.d[panel.phase || 0]);
   }
 

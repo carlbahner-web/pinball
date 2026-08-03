@@ -31,7 +31,19 @@
      the whole page is on the same held frame. */
 
   var NS = 'http://www.w3.org/2000/svg';
-  var SL_SEEDS = [2, 9, 15];
+  /* Twelve seeds, not the recipe's three.
+
+     Three was not running slow — measured on this page, the panel edge changes
+     7.7 times a second with a 132ms gap, unchanged at 4x and 6x CPU throttle on
+     a phone viewport. But three frames at 7.7fps is a loop that RESTARTS 2.6
+     times a second, and consecutive frames differ by only 0.5% of pixels with
+     the edge travelling 0.76px. A 2.6Hz cycle of three near-identical images
+     does not read as eight frames a second; it reads as about two, which is
+     exactly what it was reported as.
+
+     Twelve puts the loop at 1.56s, long enough that it stops registering as a
+     repeat. Nothing else changes: same 130ms step, same amplitude. */
+  var SL_SEEDS = [2, 9, 15, 23, 31, 44, 52, 61, 70, 78, 86, 95];
   var STEP_MS = 130;                     // ~8fps
   var root = document.documentElement;
   var phase = 0;                 // the shared 3-phase index, driven by the clock
@@ -413,7 +425,10 @@
 
     (function tick(now) {
       requestAnimationFrame(tick);
-      var f = Math.floor((now || 0) / STEP_MS) % 3;
+      /* off SL_SEEDS.length, not a hardcoded 3 — the phase index also drives
+         the canvas marks' jitter, so both boils get the same number of states
+         and stay on one clock */
+      var f = Math.floor((now || 0) / STEP_MS) % SL_SEEDS.length;
       if (f === last) return;
       last = f;
       phase = f;

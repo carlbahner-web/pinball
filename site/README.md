@@ -3,7 +3,7 @@
 The Showit engineer page rebuilt as plain HTML/CSS/JS. No build step, no
 framework — open the file in a browser and it works.
 
-Built against **SL_REF_Visual_Brand_Bible_v2**; the section numbers below point
+Built against **SL_REF_Visual_Brand_Bible_v3**; the section numbers below point
 back at it.
 
 ```
@@ -35,7 +35,7 @@ python3 -m http.server 8000
 **Serve `site/` as the web root.** Asset paths are root-relative (`/assets/…`,
 `/fonts/…`) so they match the live site, which means the folder you serve has
 to be the root. Don't open it over `file://` either — the SVG filter behind
-the torn edges needs a real origin.
+the inked panels needs a real origin.
 
 ## How assets resolve
 
@@ -82,17 +82,27 @@ font requests need a CORS header on them. Same origin, no issue.
    Left empty, the card shows a dashed "add a playlist" placeholder instead
    of a broken iframe.
 5. Point the three social links at their real URLs.
-6. Change the three `seed` values in the page's `<svg class="svg-defs">` so
-   this page's tear differs from its neighbours' (identical wear across
-   surfaces is the tell that texture is painted on, not printed in — 2.2).
+6. Leave the boil alone. The seeds `[2, 9, 15]` are part of the published
+   recipe, not a per-page flourish — every StudioLand surface steps through
+   the same three, which is what makes them look like one world.
 
 ## Still owed
 
 - **`TAYWingman.woff2`.** Only the `.woff` exists, so body text loads at
   roughly 30% more weight than it needs to.
-- **A distress sheet**, if you want Tier-2 weathering. `card--weathered`
-  expects `/assets/plate-01.png` (density-on-white, no alpha); nothing at that
-  path yet, so the class is inert until one lands.
+- **A distress sheet.** This is the one place the page doesn't meet a v3
+  Don't: the panels are colored fields carrying no texture. Tier-1 grain
+  can't fix it — measured on charcoal it lands at 0.36 stddev against 2.25 on
+  the mustard ground, because multiply only darkens and charcoal is already
+  near the floor, so adding it would be invisible weight. The bible's own
+  answer for panels is the Tier-2 plate (2.2, "texture the ground of a
+  panel"). `card--weathered` is wired and waiting for `/assets/plate-01.png`
+  — density-on-white, no alpha.
+- **A decision on the panel treatment.** 2.5 says boiling panels take fill,
+  border AND a hard offset shadow as one displaced shape. Ours is fill only,
+  which matches the Showit mockup but not the component spec. Adding a cream
+  stroke and an offset shadow is a handful of lines; it's a design change, so
+  it's yours to call.
 - **The DW Fairfield Narrow cut** isn't among the webfonts — only the regular
   is wired. Nothing here needs Narrow, but that's why it's absent from the
   stack.
@@ -133,20 +143,37 @@ Tier 2 is the `card--weathered` class: it lands a **whole, fitted** distress she
 panel's ground while the contents stay clean on top — multiply, never normal,
 never cropped-and-tiled, never scaled at paint time.
 
-**Box1 (2.3).** Every dark panel is a torn-edge Box1. On mobile they go
-full-bleed as bands.
+**Box1 (2.3).** Every dark panel is a Box1, its edge painted by the boil's
+displaced shape. On mobile they go full-bleed as bands.
 
-**The boil (2.6).** Live on by default. Three seeded redraws of the same
-edge, cycled on an 8fps three-phase clock, driven by one CSS variable
-(`--edge`) so the whole page boils together. What deliberately doesn't move,
-per the rules: **text** stays crisp on top, and **the photo never warps** —
-the torn panel *behind* it boils instead, which is the "boiling silhouette
-behind finished artwork" rule. Nothing here has dense repeating marks or a
-regular lattice, so nothing strobes. The ink is charcoal on a mustard ground,
-so the boiling edge has a field to contrast against.
+**The boil (2.6).** This is `design-system/components/boil.html` copied
+verbatim — the packaged recipe, not a reimplementation. v3 is explicit that
+re-deriving it from prose produces something over-complicated and wrong, and
+this page proved that the hard way before the file turned up: it ran at scale
+13 and then 22 across three and four octaves, five to eight times the
+recipe's `scale="2.7"` / `numOctaves="1"`, which is its trap #4 exactly.
+
+The published numbers, unchanged here: `fractalNoise`, `baseFrequency="0.02"`
+isotropic, `numOctaves="1"`, `scale="2.7"`, seeds `[2, 9, 15]` stepped every
+130ms, filter region `x -25% y -30% w 155% h 175%`. **If you change anything,
+change colors, radius and stroke weight — nothing else.**
+
+The four promoted traps, and where each is honoured:
+
+- **It steps, never glides** — one rAF clock in `engineer.js` sets `seed` on
+  every `.sl-seed` node, so the whole page holds the same frame.
+- **The displaced fill edge IS the border** — the panels carry no CSS border
+  at all; the rect inside the filtered group paints their edge.
+- **The filter has a declared region** — without it the displaced edge clips
+  flat against an invisible box.
+- **The ink contrasts its field** — charcoal panels against the mustard
+  ground. On a dark ground the ink would have to flip to cream.
+
+Also: the shape layer is an `<svg>`, a replaced element, so it needs an
+explicit width and height. `inset: 0` alone leaves it at 300x150.
 
 Hold it still with `data-boil="off"` on the `<html>` tag. It also stops for
-`prefers-reduced-motion` and in a background tab.
+`prefers-reduced-motion`.
 
 **Value gap (1.1) — one thing to look at.** The footer nav band (Foggy Mint,
 luminance ≈0.59) sits directly against the mustard ground (≈0.64). That's a

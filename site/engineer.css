@@ -490,7 +490,7 @@ svg.sl-boil rect.face {
    ground is for; cream is the colour type takes INSIDE a panel. */
 .social canvas.mark {
   display: block;
-  width: clamp(50px, 6vw, 84px);
+  width: clamp(64px, 8vw, 116px);
   height: auto;
   aspect-ratio: 132 / 134;
   color: var(--ink);
@@ -666,7 +666,7 @@ svg.sl-boil rect.face {
     gap: 14px;
   }
 
-  .social canvas.mark { width: 46px; }
+  .social canvas.mark { width: 60px; }
 
   .footer-nav { padding: 26px 24px; }
   .footer-nav__links { font-size: 21px; }
@@ -680,6 +680,14 @@ svg.sl-boil rect.face {
   .grid { gap: 14px; }
   .mascot-row { padding: 24px 24px 28px; gap: 20px; }
   .mascot-row__mascot { width: clamp(90px, 10vw, 130px); }
+
+  /* The marks stack into a column at the mobile breakpoint, which is right
+     on a tall screen and wrong here: stacked at their current size they run
+     211px, i.e. 54% of a 390px-tall landscape phone, while BUZZ shrinks to
+     90px beside them. Lay them out along the axis this viewport actually
+     has. Width is not scarce — three marks plus gaps come to 228px of the
+     796px available. */
+  .social { grid-template-columns: repeat(3, auto); gap: clamp(16px, 3vw, 34px); }
   .footer-nav { padding: 18px 24px; }
   .name-block { padding-top: 22px; padding-bottom: 22px; }
 }

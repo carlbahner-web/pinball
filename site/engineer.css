@@ -43,12 +43,10 @@
   --radius:     22px;     /* base card corner before the rough filter */
 
   /* ---- Torn paper edge / boil (2.6) ----
-     Panels run two filter passes: a fixed #tear for the torn silhouette, then
-     --edge, which engineer.js swaps between three boil phases at 8fps. Tune
-     the tear and the motion independently on the filter defs in the page head.
-     Set data-boil="off" on <html> to hold it still. */
+     --edge is swapped between three seeded filters on an 8fps clock by
+     engineer.js. Set data-boil="off" on <html> to hold it still. */
   --tear:       7px;      /* how far the torn edge bleeds past the content box */
-  --edge:       url(#boil-0);
+  --edge:       url(#rough-edge-0);
 }
 
 /* ==========================================================================
@@ -119,7 +117,7 @@ a   { color: inherit; text-decoration: none; }
   inset: calc(var(--tear) * -1);
   background: var(--ink);
   border-radius: var(--radius);
-  filter: url(#tear) var(--edge);
+  filter: var(--edge);
   z-index: 0;
 }
 
@@ -180,7 +178,7 @@ a   { color: inherit; text-decoration: none; }
   inset: 0;
   background: var(--ink);
   border-radius: 10px;
-  filter: url(#tear) var(--edge);
+  filter: var(--edge);
   z-index: 0;
 }
 
@@ -475,7 +473,7 @@ a   { color: inherit; text-decoration: none; }
     right: -20px;
     background: var(--ink);
     border-radius: var(--radius);
-    filter: url(#tear) var(--edge);
+    filter: var(--edge);
     z-index: 0;
   }
 

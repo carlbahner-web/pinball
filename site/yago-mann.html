@@ -13,32 +13,22 @@
 <!-- data-boil="off" holds the linework still. -->
 <body>
 
+  <!-- The torn Box1 edge, and the BOIL (Brand Bible 2.6): three redraws of the
+       same stroke, cycled on an 8fps clock by engineer.js. Tune the tear with
+       `scale` (how violent) and `baseFrequency` (how fine); change the seeds
+       to get a different tear on a different page. -->
   <svg class="svg-defs" aria-hidden="true" focusable="false">
-    <!-- Two passes, so the tear and the motion can be dialled separately.
-
-         #tear never changes: it's the torn Box1 silhouette, and holding it
-         still is what keeps the edge from re-randomising 8 times a second.
-         Raise its scale for a more shredded edge.
-
-         #boil-0/1/2 are the three redraws engineer.js cycles at 8fps (2.6).
-         Fine noise, small scale — measured at 0.44px average travel per
-         frame against 1.22px when one pass did both jobs. Raise their scale
-         together for a livelier boil; they must stay equal to each other. -->
-    <filter id="tear">
+    <filter id="rough-edge-0">
       <feTurbulence type="fractalNoise" baseFrequency="0.022" numOctaves="4" seed="7" result="noise" />
-      <feDisplacementMap in="SourceGraphic" in2="noise" scale="11" xChannelSelector="R" yChannelSelector="G" />
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="13" xChannelSelector="R" yChannelSelector="G" />
     </filter>
-    <filter id="boil-0">
-      <feTurbulence type="fractalNoise" baseFrequency="0.06" numOctaves="2" seed="7" result="noise" />
-      <feDisplacementMap in="SourceGraphic" in2="noise" scale="4" xChannelSelector="R" yChannelSelector="G" />
+    <filter id="rough-edge-1">
+      <feTurbulence type="fractalNoise" baseFrequency="0.022" numOctaves="4" seed="23" result="noise" />
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="13" xChannelSelector="R" yChannelSelector="G" />
     </filter>
-    <filter id="boil-1">
-      <feTurbulence type="fractalNoise" baseFrequency="0.06" numOctaves="2" seed="23" result="noise" />
-      <feDisplacementMap in="SourceGraphic" in2="noise" scale="4" xChannelSelector="R" yChannelSelector="G" />
-    </filter>
-    <filter id="boil-2">
-      <feTurbulence type="fractalNoise" baseFrequency="0.06" numOctaves="2" seed="41" result="noise" />
-      <feDisplacementMap in="SourceGraphic" in2="noise" scale="4" xChannelSelector="R" yChannelSelector="G" />
+    <filter id="rough-edge-2">
+      <feTurbulence type="fractalNoise" baseFrequency="0.022" numOctaves="4" seed="41" result="noise" />
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="13" xChannelSelector="R" yChannelSelector="G" />
     </filter>
   </svg>
 

@@ -14,20 +14,21 @@
 <body>
 
   <!-- The torn Box1 edge, and the BOIL (Brand Bible 2.6): three redraws of the
-       same stroke, cycled on an 8fps clock by engineer.js. Tune the tear with
-       `scale` (how violent) and `baseFrequency` (how fine); change the seeds
-       to get a different tear on a different page. -->
+       same stroke, cycled on an 8fps clock by engineer.js. Two knobs, and they
+       do different jobs: `scale` is how FAR the edge deviates, `baseFrequency`
+       is how OFTEN it wobbles — lower reads smoother without losing depth.
+       Change the seeds to get a different tear on a different page. -->
   <svg class="svg-defs" aria-hidden="true" focusable="false">
     <filter id="rough-edge-0">
-      <feTurbulence type="fractalNoise" baseFrequency="0.022" numOctaves="4" seed="7" result="noise" />
+      <feTurbulence type="fractalNoise" baseFrequency="0.007" numOctaves="4" seed="7" result="noise" />
       <feDisplacementMap in="SourceGraphic" in2="noise" scale="13" xChannelSelector="R" yChannelSelector="G" />
     </filter>
     <filter id="rough-edge-1">
-      <feTurbulence type="fractalNoise" baseFrequency="0.022" numOctaves="4" seed="23" result="noise" />
+      <feTurbulence type="fractalNoise" baseFrequency="0.007" numOctaves="4" seed="23" result="noise" />
       <feDisplacementMap in="SourceGraphic" in2="noise" scale="13" xChannelSelector="R" yChannelSelector="G" />
     </filter>
     <filter id="rough-edge-2">
-      <feTurbulence type="fractalNoise" baseFrequency="0.022" numOctaves="4" seed="41" result="noise" />
+      <feTurbulence type="fractalNoise" baseFrequency="0.007" numOctaves="4" seed="41" result="noise" />
       <feDisplacementMap in="SourceGraphic" in2="noise" scale="13" xChannelSelector="R" yChannelSelector="G" />
     </filter>
   </svg>

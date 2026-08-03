@@ -134,16 +134,20 @@
   <main class="page">
     <div class="grid">
 
-      <figure class="card photo-card">
-        <img src="/assets/ENGINEER-SLUG.webp" alt="ENGINEER NAME"
-             onerror="this.onerror=null;this.src='/assets/photo-placeholder.svg'" />
-      </figure>
-
-      <article class="card bio-card">
+      <!-- Hero: name, photo and bio in ONE card. The photo floats, so the bio
+           runs beside it and then closes to full width below it. Name / photo /
+           bio is also the phone stacking order, so the mobile breakpoint just
+           dissolves this card and the three become their own bands. -->
+      <article class="card hero-card">
         <header class="name-block">
           <h1>Engineer Name</h1>
           <p>Role, Role, Role</p>
         </header>
+
+        <figure class="hero-photo">
+          <img src="/assets/ENGINEER-SLUG.webp" alt="ENGINEER NAME"
+               onerror="this.onerror=null;this.src='/assets/photo-placeholder.svg'" />
+        </figure>
 
         <div class="bio-body">
           <p>Bio paragraph one.</p>

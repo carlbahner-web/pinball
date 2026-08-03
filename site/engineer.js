@@ -69,7 +69,7 @@
     el.insertBefore(svg, el.firstChild);
   }
 
-  var hosts = document.querySelectorAll('.card, .name-block, .bio-body, .logo--on-ink');
+  var hosts = document.querySelectorAll('.card, .name-block, .hero-photo, .bio-body, .logo--on-ink');
   Array.prototype.forEach.call(hosts, attach);
   if (hosts.length) root.classList.add('has-boil');
 

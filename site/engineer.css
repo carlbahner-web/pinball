@@ -313,21 +313,39 @@ svg.sl-boil rect.face {
 .name-block h1,
 .qa-card h2 { overflow-wrap: break-word; }
 
-/* Right column wrapper: on desktop this IS the bio card (name + copy in one
-   torn shape). On mobile it dissolves (display: contents) so the name band and
-   the bio band become separate full-bleed sections with the photo between. */
-.bio-card { grid-column: 2; grid-row: 1; }
-
-.photo-card   { grid-column: 1; grid-row: 1; }
+/* The hero spans both columns; the Q&A and the player sit under it. A 2x2 of
+   photo | bio over Q&A | player was the old arrangement, and it made each row
+   as tall as its taller card — on a landscape phone that left 340px of empty
+   ground beside the photo and again beside the player. One wide card with the
+   picture floated inside it has no rows to keep level. */
+.hero-card    { grid-column: 1 / -1; grid-row: 1; }
 .qa-card      { grid-column: 1; grid-row: 2; }
 .spotify-card { grid-column: 2; grid-row: 2; }
 
+/* The float. The bio runs beside the picture as a second column, then closes
+   to full width the moment it clears the bottom of it — which is the whole
+   point, and something a grid cannot do: a grid cell's width is fixed for its
+   entire height.
+
+   Width in %, so the split holds at any card width. The floor stops the text
+   column collapsing to a ribbon on a narrow card; the ceiling stops the
+   picture swallowing a wide one. */
+.hero-photo {
+  float: left;
+  width: clamp(210px, 40%, 440px);
+  margin: 0 clamp(20px, 2.4vw, 34px) 18px 0;
+  shape-margin: 12px;
+}
+
+.hero-photo img { width: 100%; height: auto; }
+
 /* ---- Name block ---- */
 
-/* On desktop these two live inside the bio card and share its contour; only
-   at the mobile breakpoint, where they split into their own bands, do they
-   get one of their own. */
+/* Inside the hero card these three share its contour; only at the mobile
+   breakpoint, where the card dissolves and they split into their own bands, do
+   they get one of their own. */
 .name-block,
+.hero-photo,
 .bio-body { --cel-on: 0; }
 
 .name-block { text-align: center; }
@@ -363,36 +381,28 @@ svg.sl-boil rect.face {
 /* Without a ceiling the measure tracks the viewport: 93 characters per line
    on a landscape phone, 84 on tablet portrait, against a comfortable 45-75.
    Desktop already sits at 60, so this only bites where it was broken. */
+/* No max-width here, and that is the whole trick of the float.
+
+   A max-width on the paragraph caps the BLOCK, and a block box sits under a
+   float — only its line boxes wrap around one. So a 37em cap measured from the
+   card's left edge, with a 440px picture in the way, left thirteen characters
+   a line beside the photo. The card's own width sets the measure instead:
+   about 73 characters beside the picture at full page width, and about 77 on
+   the lines that close underneath it. The mobile block puts the cap back,
+   where the bands are full-bleed and there is no float to account for. */
 .bio-body p {
   margin: 0 0 1.15em;
-  max-width: var(--measure);
   font-size: var(--body-size);
   line-height: 1.7;
 }
 
 .bio-body p:last-child { margin-bottom: 0; }
 
-/* ---- Photo ---- */
-
-.photo-card { --card-pad: clamp(10px, 1.4vw, 16px); }
-
-/* The one element that was never bounded by height. Sized off width alone it
-   hits 2.96 screens on a landscape phone and a full screen on a laptop.
-
-   It scales down rather than cropping: both max-width and max-height are set
-   with auto dimensions, so the browser fits the image inside both while
-   keeping its ratio. The whole frame survives — the street at the top and the
-   graffiti at the bottom are doing real work — and on a short screen the
-   photo just gets smaller, centred, with the panel around it reading as a
-   mount. Cropping was the alternative and it cost the composition. */
-.photo-card img {
-  width: auto;
-  max-width: 100%;
-  height: auto;
-  max-height: 72vh;   /* the card adds its own padding; 72 keeps the whole
-                         panel inside one screen */
-  margin-inline: auto;
-}
+/* The picture keeps its whole frame at every size — it scales down rather
+   than cropping. The street at the top and the graffiti at the bottom are
+   doing real work; cropping was the alternative and it cost the composition.
+   The height ceiling that enforces that lives in the mobile block, where the
+   picture is a band of its own rather than a float. */
 
 /* ---- Q&A ---- */
 
@@ -640,20 +650,23 @@ svg.sl-boil rect.face {
     gap: 20px;
   }
 
-  /* Dissolve the desktop bio card so its two halves can be reordered.
+  /* Dissolve the hero card so its three parts become bands of their own.
      display: contents still generates ::before in Chrome, and with no
      positioned ancestor left it would size itself to the viewport — so kill
      it explicitly. */
-  .bio-card { display: contents; }
-  .bio-card::before { content: none; }
-  .bio-card { --cel-on: 0; }
+  .hero-card { display: contents; }
+  .hero-card::before { content: none; }
+  .hero-card { --cel-on: 0; }
   .name-block,
+  .hero-photo,
   .bio-body { --cel-on: 1; }
 
-  /* single column: name → photo → bio → spotify → Q&A */
-  .name-block   { order: 1; }
-  .photo-card   { order: 2; }
-  .bio-body     { order: 3; }
+  /* The float only makes sense where there is width to put a column beside
+     the picture. Here it goes full width in the flow. */
+  .hero-photo { float: none; width: auto; margin: 0; }
+
+  /* Name → photo → bio comes free from the DOM order; only the player and the
+     Q&A need moving, since the grid put them the other way round. */
   .spotify-card { order: 4; }
   .qa-card      { order: 5; }
 
@@ -662,6 +675,7 @@ svg.sl-boil rect.face {
   /* Full-bleed dark bands. The rough filter bleeds sideways past the
      viewport, which is why body has overflow-x: hidden. */
   .name-block,
+  .hero-photo,
   .bio-body,
   .qa-card,
   .spotify-card {
@@ -672,6 +686,7 @@ svg.sl-boil rect.face {
   }
 
   .name-block::before,
+  .hero-photo::before,
   .bio-body::before,
   .qa-card::before,
   .spotify-card::before {
@@ -687,22 +702,27 @@ svg.sl-boil rect.face {
   }
 
   .name-block > *,
+  .hero-photo > *,
   .bio-body > *,
   .qa-card > *,
   .spotify-card > * { position: relative; z-index: 1; }
 
   /* The bands run full width; their copy shouldn't. Centre the measure inside
      them rather than letting lines stretch to the screen edge. */
+  .bio-body p { max-width: var(--measure); }
+
   .bio-body p,
   .qa dt,
   .qa dd { margin-inline: auto; }
 
   .name-block,
+  .hero-photo,
   .bio-body,
   .qa-card,
   .spotify-card { --cel-x: 7px; }
 
   .has-boil .name-block::before,
+  .has-boil .hero-photo::before,
   .has-boil .bio-body::before,
   .has-boil .qa-card::before,
   .has-boil .spotify-card::before { display: none; }
@@ -711,8 +731,15 @@ svg.sl-boil rect.face {
   .name-block h1 { font-size: 38px; }
 
   /* yellow breathing room between the bands */
-  .photo-card { padding: clamp(20px, 5vw, 30px) clamp(18px, 5vw, 24px); }
-  .photo-card::before { inset: 24px 18px; border-radius: 14px; }
+  .hero-photo { padding: clamp(20px, 5vw, 30px) clamp(18px, 5vw, 24px); }
+  .hero-photo::before { inset: 24px 18px; border-radius: 14px; }
+  .hero-photo img {
+    width: auto;
+    max-width: 100%;
+    height: auto;
+    max-height: 72vh;
+    margin-inline: auto;
+  }
 
   /* one gap, set by the grid — the old per-panel margins gave 0px between the
      first three and 34px between the rest, so three panels read as one */
@@ -765,7 +792,7 @@ svg.sl-boil rect.face {
    wide — it hands the photo the full page width and it renders 808px tall,
    2.2 screens, which is the exact complaint that put the cap there. */
 @media (min-width: 700px) and (max-height: 520px) and (min-aspect-ratio: 1 / 1) {
-  .photo-card img { max-height: none; }
+  .hero-photo img { max-height: none; }
   .mascot-row { padding: 24px 24px 28px; gap: 20px; }
   .mascot-row__mascot { width: clamp(90px, 10vw, 130px); }
 

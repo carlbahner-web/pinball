@@ -665,8 +665,11 @@ svg.sl-boil rect.face {
      the picture. Here it goes full width in the flow. */
   .hero-photo { float: none; width: auto; margin: 0; }
 
-  /* Name → photo → bio comes free from the DOM order; only the player and the
-     Q&A need moving, since the grid put them the other way round. */
+  /* The hero's DOM has the photo first, because a float only affects what
+     follows it. Stacked, the name has to lead. */
+  .name-block   { order: 1; }
+  .hero-photo   { order: 2; }
+  .bio-body     { order: 3; }
   .spotify-card { order: 4; }
   .qa-card      { order: 5; }
 

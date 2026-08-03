@@ -136,26 +136,27 @@
   <main class="page">
     <div class="grid">
 
-      <!-- Hero: name, photo and bio in ONE card. The photo floats, so the bio
-           runs beside it as a second column and then closes to full width once
-           it clears the bottom of the picture.
+      <!-- Hero: name, photo and bio in ONE card. The photo comes FIRST and
+           floats, so everything after it — the name and role as well as the
+           bio — runs beside it as a second column and then closes to full
+           width once it clears the bottom of the picture.
 
-           Order here is doing double duty. Name first, photo second, bio third
-           is exactly the stacking order the phone layout wants, so the mobile
-           breakpoint dissolves this card (display: contents) and the three
-           become their own bands with no reordering. -->
+           Photo first is a float requirement, not a reading order: a float
+           only affects content that follows it. The phone wants name first,
+           so the mobile breakpoint reorders with `order` once the card has
+           dissolved into separate bands. -->
       <article class="card hero-card">
-        <header class="name-block">
-          <h1>Yago Mann</h1>
-          <p>Producer, Mixer, Guitarist</p>
-        </header>
-
         <figure class="hero-photo">
           <img src="/assets/yago-mann.webp"
                alt="Yago Mann sitting on graffiti-covered steps"
                width="1143" height="1574"
                onerror="this.onerror=null;this.src='/assets/photo-placeholder.svg'" />
         </figure>
+
+        <header class="name-block">
+          <h1>Yago Mann</h1>
+          <p>Producer, Mixer, Guitarist</p>
+        </header>
 
         <div class="bio-body">
           <p>Yago has spent his career helping artists sound more like themselves. First as a guitar player on other people&rsquo;s records, and now as a producer, his work is built around drawing out the version of the song you&rsquo;ve been chasing &ndash; not imposing his own sound on top of it.</p>

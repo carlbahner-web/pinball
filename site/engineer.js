@@ -5,9 +5,13 @@
   'use strict';
 
   /* ---- The boil (Brand Bible 2.6) -------------------------------------
-     The signature motion: the same stroke redrawn slightly differently on a
-     ~8fps three-phase clock, like cels traced by hand. Every torn panel edge
-     reads off --edge, so cycling that one variable boils the whole page.
+     The signature motion: the same contour redrawn slightly differently on a
+     three-phase clock, like cels traced by hand. Every panel edge reads off
+     --edge, so cycling that one variable boils the whole page.
+
+     Three cels at 12fps loop every quarter second. If the repeat becomes
+     recognisable, add seeded #rough-edge filters and list them in PHASES —
+     that lengthens the loop without touching the clock.
 
      What deliberately does NOT boil, per the rules:
        - text (labels stay crisp above the boiling shapes)
@@ -19,7 +23,12 @@
      <html data-boil="off">. */
 
   var PHASES = ['url(#rough-edge-0)', 'url(#rough-edge-1)', 'url(#rough-edge-2)'];
-  var FRAME_MS = 125;                     // 8fps
+  // 12fps — classic cel animation ran on twos: 12 drawings per second against
+  // a 24fps camera. (The bible says ~8; this is the authentic cadence, chosen
+  // deliberately.) Expressed as a rate so the number you read is the number
+  // you set.
+  var FPS = 12;
+  var FRAME_MS = 1000 / FPS;
   var root = document.documentElement;
 
   var stillWanted =

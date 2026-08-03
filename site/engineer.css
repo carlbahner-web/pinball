@@ -223,9 +223,10 @@ svg.sl-boil rect.face {
 .topbar__logo img { width: clamp(120px, 12vw, 152px); height: auto; }
 
 /* The cream wordmark build (assets/logo.png) needs a dark ground under it —
-   cream artwork on a cream bar is invisible. Applied by the img's onerror
-   handler when the primary lockup is missing, so the mark still reads instead
-   of vanishing. It's a Box1, so it tears and boils with everything else. */
+   cream artwork on a cream bar is invisible. Nothing applies this class now
+   that the lockup's fallback is the full-size PNG of the same dark artwork
+   rather than the cream build; it stays for any page that does reach for
+   logo.png. It's a Box1, so it tears and boils with everything else. */
 .logo--on-ink {
   position: relative;
   display: inline-block;

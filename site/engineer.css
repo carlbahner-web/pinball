@@ -294,6 +294,23 @@ svg.sl-boil rect.face {
   align-items: start;
 }
 
+/* Everything on this page sizes itself to its copy, with one exception this
+   pair closes. A grid item's min-width is `auto`, meaning "no narrower than my
+   longest unbreakable run" — so one long URL or hyphenless compound makes the
+   column wider than its share instead of wrapping. Measured before this rule:
+   a 75-character word took the Q&A panel from 358px to 631px on a 390px phone,
+   and because html carries overflow-x: hidden there was no scrollbar to reveal
+   it — the panel just ran off the screen. min-width: 0 lets the column hold its
+   share; overflow-wrap lets the word break rather than overflow inside it.
+   Both are inert for copy that has ordinary spaces in it. */
+.grid > * { min-width: 0; }
+
+.bio-body p,
+.qa dt,
+.qa dd,
+.name-block h1,
+.qa-card h2 { overflow-wrap: break-word; }
+
 /* Right column wrapper: on desktop this IS the bio card (name + copy in one
    torn shape). On mobile it dissolves (display: contents) so the name band and
    the bio band become separate full-bleed sections with the photo between. */

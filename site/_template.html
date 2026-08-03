@@ -51,24 +51,39 @@
            the transform origin, so it's hairline at the middle and heavy at
            the hands and feet. A dilate is the same weight everywhere.
 
-           radius 4 is a flat 4 CSS px, not a proportion, so the stroke is
+           radius 2 is a flat 2 CSS px, not a proportion, so the stroke is
            relatively heavier on a small mascot than a large one. That is the
            right way round: a stroke that scaled down would disappear on a
-           landscape phone, where BUZZ is only 90px wide.
+           landscape phone, where BUZZ is only 90px wide. Below about 1.5 the
+           ring starts breaking up where the boil crosses it.
 
-           scale 3, well under the panels' 7. The ring is only 4px proud of
-           the artwork, so displacement much past that pulls it out from
-           behind the drawing on one side and swallows it on the other. -->
+           The ring boils at 3, the artwork at 1.5, off ONE turbulence. Same
+           noise for both is what keeps the outline registered to the drawing
+           — the two wander the same way, and the 1.5 difference between them
+           is what reads as the edge breathing. Independent seeds would let
+           the ring slide around the body like a loose shadow.
+
+           Ring boil stays at 3 even though the panels run 7. The ring is
+           only 2px proud of the artwork, so past about 3 it pulls clear on
+           one side and hides behind the drawing on the other, and the
+           outline goes patchy instead of wobbling.
+
+           1.5 on the artwork is the one place this page displaces a DRAWING
+           rather than a shape, which 2.6 warns against — displacement over
+           artwork smears rather than boils. At +-0.75px it reads as a breath
+           and nothing smears. It does not have much more room than that:
+           by 3 the warp is visible in his teeth. -->
       <filter id="slInkEdge" x="-14%" y="-14%" width="128%" height="128%">
-        <feMorphology in="SourceAlpha" operator="dilate" radius="4" result="fat" />
+        <feMorphology in="SourceAlpha" operator="dilate" radius="2" result="fat" />
         <feFlood flood-color="#2C2C2A" result="ink" />
         <feComposite in="ink" in2="fat" operator="in" result="sil" />
         <feTurbulence class="sl-seed" type="fractalNoise" baseFrequency="0.02" numOctaves="1" seed="2" result="et" />
         <feColorMatrix in="et" type="matrix" values="0.3 0 0 0 0.35  0 1 0 0 0  0 0 1 0 0  0 0 0 1 0" result="etb" />
         <feDisplacementMap in="sil" in2="etb" scale="3" xChannelSelector="R" yChannelSelector="G" result="edge" />
+        <feDisplacementMap in="SourceGraphic" in2="etb" scale="1.5" xChannelSelector="R" yChannelSelector="G" result="body" />
         <feMerge>
           <feMergeNode in="edge" />
-          <feMergeNode in="SourceGraphic" />
+          <feMergeNode in="body" />
         </feMerge>
       </filter>
     </defs>

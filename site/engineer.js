@@ -293,13 +293,30 @@
     marks.push({
       el: el, raw: raw, ink: inkCtx(raw),
       kind: el.getAttribute('data-mark'),
-      color: getComputedStyle(el).getPropertyValue('color').trim() || '#fcf7e8'
+      color: '#2C2C2A'
     });
   });
 
+  /* The ink comes from CSS `color`, which is the whole point — a mark on a
+     mustard ground and a mark on a dark panel want different ink, and the
+     stylesheet is where that belongs. But getComputedStyle forces a style
+     recalc, so reading it per frame would mean 24 recalcs a second for three
+     small icons. Read it when it can actually have changed instead: once now,
+     and again on resize, which is the only thing that moves a mark across a
+     breakpoint. */
+  function readColors() {
+    for (var i = 0; i < marks.length; i++) {
+      var c = getComputedStyle(marks[i].el).getPropertyValue('color').trim();
+      if (c) marks[i].color = c;
+    }
+  }
+  readColors();
+
   function drawMarks() { for (var i = 0; i < marks.length; i++) drawMark(marks[i]); }
   drawMarks();
-  window.addEventListener('resize', function () { setTimeout(drawMarks, 150); });
+  window.addEventListener('resize', function () {
+    setTimeout(function () { readColors(); drawMarks(); }, 150);
+  });
 
   /* ---- The clock ------------------------------------------------------
      One loop for both boils: it steps the SVG seeds and redraws the canvas

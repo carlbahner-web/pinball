@@ -481,13 +481,19 @@ svg.sl-boil rect.face {
 
 /* The marks are drawn linework, so they take the canvas boil (2.6), not the
    SVG filter — the filter smears artwork. `color` is what engineer.js reads
-   for the ink, so the mark follows its field like any other text would. */
+   for the ink, so the mark follows its field like any other text would.
+
+   Charcoal, not cream: this row has no panel behind it, so the marks sit
+   directly on the mustard ground. Cream on mustard measures 1.43:1 — barely a
+   tint apart, and the boil made it worse by keeping the linework thin.
+   Charcoal on the same ground is 9.14:1. Ink on the ground is also what the
+   ground is for; cream is the colour type takes INSIDE a panel. */
 .social canvas.mark {
   display: block;
   width: clamp(50px, 6vw, 84px);
   height: auto;
   aspect-ratio: 132 / 134;
-  color: var(--cream);
+  color: var(--ink);
 }
 
 .footer-nav {

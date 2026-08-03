@@ -211,20 +211,34 @@
     ink.stroke();
   }
 
+  /* A line of latitude: a horizontal chord of the sphere, so its width comes
+     from the circle rather than being picked by eye. */
+  function parallel(ink, dy) {
+    var hw = Math.sqrt(GLOBE_R * GLOBE_R - dy * dy);
+    ink.beginPath();
+    ink.moveTo(50 - hw, 50 + dy);
+    ink.lineTo(50 + hw, 50 + dy);
+    ink.stroke();
+  }
+
   var MARKS = {
     /* A globe, not a silo. The old mark was an arch closed off with a flat
        bottom, which reads as a grain silo or a birdcage — the one thing it
-       didn't read as was a sphere. Circle, equator, one mirrored meridian
-       pair.
+       didn't read as was a sphere. Circle, equator, a pair of parallels, and
+       a mirrored meridian pair.
 
-       Equator and two meridians only. Adding the pair of parallels makes a
-       richer globe at desktop size and a dark blob at mobile size: measured
-       at 46px it takes ink coverage to 21.1%, against 14.6% for the other
-       two marks in the row, so it would read as the heavy one of the three.
-       This version sits at 18.0%. */
+       The full latitude grid is a deliberate choice, not the cheapest one.
+       It costs density: at 46px this mark measures 21.1% ink coverage
+       against 14.6% for instagram and email, so it is the heaviest of the
+       three and will always be. Dropping the two parallels would bring it to
+       18.0% and match the row better — that is the trade if it ever reads
+       too dark on a real phone. The grid is what makes it unmistakably a
+       globe rather than a lens, and that won. */
     website: function (ink, raw) {
       ink.beginPath(); ink.arc(50, 50, GLOBE_R, 0, Math.PI * 2); ink.stroke();
       ink.beginPath(); ink.moveTo(50 - GLOBE_R, 50); ink.lineTo(50 + GLOBE_R, 50); ink.stroke();
+      parallel(ink, -19);
+      parallel(ink,  19);
       meridian(ink,  19);
       meridian(ink, -19);
     },
@@ -257,7 +271,7 @@
      it would float the top ray a long way above the flap while pressing the
      outer two into the corners. Hugging each outline is what keeps the
      spacing reading as deliberate. */
-  var RAY = { bearings: [-60, -30, 0, 30, 60], gap: 9, len: 13 };
+  var RAY = { bearings: [-60, -30, 0, 30, 60], gap: 12, len: 13 };
 
   /* Each silhouette as a rounded box — a circle is just a box whose corner
      radius equals its half-size, so one expression covers all three. */

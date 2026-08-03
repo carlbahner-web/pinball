@@ -39,7 +39,14 @@
   /* ---- Layout ---- */
   --page-max:   1280px;   /* max content width */
   --gutter:     28px;     /* space between the two columns */
-  --card-pad:   38px;     /* inner padding of a torn card */
+  /* Padding scales with the viewport. A fixed value is proportionally
+     largest exactly where space is tightest — 38px is 6% of a 390px phone
+     and 1.5% of an ultrawide. */
+  --card-pad:   clamp(20px, 4.4vw, 38px);
+  /* Ceiling on line length. NOT in `ch`: TAY Wingman's zero is 0.78em wide
+     against a typical 0.5em, so 68ch measures ~93 actual characters — the
+     unit flatters this face badly. 37em lands at ~65 characters. */
+  --measure:    37em;
   --radius:     22px;     /* corner radius before JS draws the contour */
 
   /* ---- Inked shape / boil (2.6) ----
@@ -327,8 +334,12 @@ svg.sl-boil rect.face {
 
 .bio-body { margin-top: 26px; }
 
+/* Without a ceiling the measure tracks the viewport: 93 characters per line
+   on a landscape phone, 84 on tablet portrait, against a comfortable 45-75.
+   Desktop already sits at 60, so this only bites where it was broken. */
 .bio-body p {
   margin: 0 0 1.15em;
+  max-width: var(--measure);
   font-size: 15px;
   line-height: 1.75;
 }
@@ -337,8 +348,21 @@ svg.sl-boil rect.face {
 
 /* ---- Photo ---- */
 
-.photo-card { --card-pad: 16px; }
-.photo-card img { width: 100%; height: auto; }
+.photo-card { --card-pad: clamp(10px, 1.4vw, 16px); }
+
+/* The one element that was never bounded by height. Sized off width alone it
+   hits 2.96 screens on a landscape phone and a full screen on a laptop, so it
+   takes a viewport-relative ceiling and crops instead of growing. object-fit
+   keeps the subject centred; what's lost is street at the top and pavement at
+   the bottom. */
+.photo-card img {
+  width: 100%;
+  height: auto;
+  max-height: clamp(260px, 62vh, 900px);
+  object-fit: cover;
+  object-position: 50% 16%;   /* his face sits in the top third; the window
+                                 has to sit high or the crop takes his head */
+}
 
 /* ---- Q&A ---- */
 
@@ -356,6 +380,7 @@ svg.sl-boil rect.face {
 .qa { margin: 0; }
 
 .qa dt {
+  max-width: var(--measure);
   font-size: 15px;
   line-height: 1.6;
   margin-bottom: 1.1em;
@@ -363,6 +388,7 @@ svg.sl-boil rect.face {
 
 .qa dd {
   margin: 0 0 1.9em;
+  max-width: var(--measure);
   font-size: 15px;
   line-height: 1.75;
 }
@@ -377,7 +403,7 @@ svg.sl-boil rect.face {
 .spotify-embed iframe {
   display: block;
   width: 100%;
-  height: 580px;
+  height: clamp(232px, 58vh, 580px);   /* 580px fixed was 1.4 screens in landscape */
   border: 0;
   border-radius: 12px;
 }
@@ -529,7 +555,7 @@ svg.sl-boil rect.face {
   .qa-card,
   .spotify-card {
     position: relative;
-    padding: 34px 24px;
+    padding: clamp(24px, 6vw, 34px) clamp(18px, 5vw, 24px);
     margin: 0;
     color: var(--cream);
   }
@@ -554,6 +580,12 @@ svg.sl-boil rect.face {
   .qa-card > *,
   .spotify-card > * { position: relative; z-index: 1; }
 
+  /* The bands run full width; their copy shouldn't. Centre the measure inside
+     them rather than letting lines stretch to the screen edge. */
+  .bio-body p,
+  .qa dt,
+  .qa dd { margin-inline: auto; }
+
   .name-block,
   .bio-body,
   .qa-card,
@@ -568,14 +600,14 @@ svg.sl-boil rect.face {
   .name-block h1 { font-size: 38px; }
 
   /* yellow breathing room between the bands */
-  .photo-card { padding: 30px 24px; }
+  .photo-card { padding: clamp(20px, 5vw, 30px) clamp(18px, 5vw, 24px); }
   .photo-card::before { inset: 24px 18px; border-radius: 14px; }
 
   .bio-body   { margin-top: 0; }
   .spotify-card { margin-top: 34px; }
   .qa-card      { margin-top: 34px; }
 
-  .spotify-embed iframe { height: 460px; }
+
 
   .mascot-row {
     padding: 44px 24px 50px;
@@ -595,6 +627,19 @@ svg.sl-boil rect.face {
 
   .footer-nav { padding: 26px 24px; }
   .footer-nav__links { font-size: 21px; }
+}
+
+/* A landscape phone is wide AND short: it clears no width breakpoint but has
+   a third of the height. Width-only rules hand it a layout meant for a tall
+   narrow screen, so trim the vertical rhythm where height is the scarce axis. */
+@media (max-height: 520px) and (min-width: 480px) {
+  .page { padding-bottom: 20px; }
+  .spotify-card { margin-top: 20px; }
+  .qa-card { margin-top: 20px; }
+  .mascot-row { padding: 24px 24px 28px; gap: 20px; }
+  .mascot-row__mascot { width: clamp(90px, 10vw, 130px); }
+  .footer-nav { padding: 18px 24px; }
+  .name-block { padding-top: 22px; padding-bottom: 22px; }
 }
 
 @media (max-width: 420px) {

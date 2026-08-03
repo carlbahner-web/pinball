@@ -3,7 +3,7 @@
    All design tokens live in :root. Change them here, not in the rules below.
    ========================================================================== */
 
-/* Canonical palette — SL_REF_Visual_Brand_Bible_v2, Part 1.1.
+/* Canonical palette — SL_REF_Visual_Brand_Bible_v3, Part 1.1.
    One value per color. Do not introduce a hex that isn't in this block. */
 :root {
   --charcoal:       #2C2C2A;   /* primary dark: text, grounds, outlines */
@@ -424,7 +424,17 @@ svg.sl-boil rect.face {
 
 .social a { display: block; }
 .social a:hover { transform: rotate(-3deg) scale(1.05); }
-.social svg { width: clamp(50px, 6vw, 84px); height: auto; }
+
+/* The marks are drawn linework, so they take the canvas boil (2.6), not the
+   SVG filter — the filter smears artwork. `color` is what engineer.js reads
+   for the ink, so the mark follows its field like any other text would. */
+.social canvas.mark {
+  display: block;
+  width: clamp(50px, 6vw, 84px);
+  height: auto;
+  aspect-ratio: 132 / 134;
+  color: var(--cream);
+}
 
 .footer-nav {
   background: var(--band-soft);
@@ -581,7 +591,7 @@ svg.sl-boil rect.face {
     gap: 14px;
   }
 
-  .social svg { width: 46px; }
+  .social canvas.mark { width: 46px; }
 
   .footer-nav { padding: 26px 24px; }
   .footer-nav__links { font-size: 21px; }

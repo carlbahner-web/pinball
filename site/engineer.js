@@ -455,37 +455,22 @@
         return;
       }
 
-      function mount() {
-        var frame = document.createElement('iframe');
-        frame.src = 'https://open.spotify.com/embed/playlist/' +
-          encodeURIComponent(id) + '?utm_source=generator&theme=0';
-        frame.title = title;
-        frame.loading = 'lazy';
-        frame.allow =
-          'autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture';
-        frame.setAttribute('allowfullscreen', '');
-        host.appendChild(frame);
-      }
-
-      /* loading="lazy" is not enough on its own. Chrome widens its lazy-load
-         threshold on slow connections, and this embed was measured fetching at
-         1619ms on Fast 3G while sitting four screens below the fold — exactly
-         when the page's own CSS and hero photo need the bandwidth.
-
-         This is also the one asset that can't be measured from here, since
-         open.spotify.com is unreachable in this sandbox: a player embed is
-         third-party JS of unknown and changing weight. Gating it on approach
-         means whatever it costs, it costs it after the page is up. */
-      if ('IntersectionObserver' in window) {
-        var io = new IntersectionObserver(function (entries) {
-          for (var i = 0; i < entries.length; i++) {
-            if (entries[i].isIntersecting) { io.disconnect(); mount(); return; }
-          }
-        }, { rootMargin: '400px 0px' });
-        io.observe(host);
-      } else {
-        mount();
-      }
+      /* Mounted eagerly, on purpose. It was briefly deferred until the card
+         came into view, on the grounds that a third-party player is JS of
+         unknown weight and was measured fetching at 1619ms on Fast 3G. That
+         is a real cost, but only on a slow link: above roughly 35 Mbps this
+         page stops being bandwidth-bound at all, and 100 Mbps and 250 Mbps
+         measure identically. Deferring bought nothing on the connections
+         people actually have, and cost a player that isn't ready when the
+         card is reached. Load it with everything else. */
+      var frame = document.createElement('iframe');
+      frame.src = 'https://open.spotify.com/embed/playlist/' +
+        encodeURIComponent(id) + '?utm_source=generator&theme=0';
+      frame.title = title;
+      frame.allow =
+        'autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture';
+      frame.setAttribute('allowfullscreen', '');
+      host.appendChild(frame);
     }
   );
 })();

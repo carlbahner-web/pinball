@@ -195,9 +195,16 @@
   </main>
 
   <!-- ===================== FOOTER ===================== -->
+  <!-- The two below-the-fold images load eagerly by choice, not by
+       measurement: with loading="lazy" they are measurably faster on a slow
+       link (median of 3 on Fast 3G at 4x CPU: FCP 1320 vs 1820ms, LCP 2324 vs
+       3328ms), because 112KB of mascot and lockup otherwise compete with the
+       hero photo. On 4G the two are within noise. Eager wins on certainty
+       instead: the artwork is always there the moment it is scrolled to. Put
+       loading="lazy" back on these two if slow-link load matters more. -->
   <div class="mascot-row">
     <img class="mascot-row__mascot" src="/assets/buzz-mascot.webp" alt="" aria-hidden="true"
-         width="600" height="600" loading="lazy" decoding="async"
+         width="600" height="600" decoding="async"
          onerror="this.onerror=null;this.src='/assets/Buzz%20The%20Mascot5.png'" />
 
     <nav class="social" aria-label="Yago Mann elsewhere">
@@ -233,7 +240,7 @@
       </nav>
       <a class="site-footer__logo" href="/" aria-label="STUDIOLAND MGMT home">
         <img src="/assets/studioland-mgmt.webp" alt="STUDIOLAND MGMT"
-             width="480" height="291" loading="lazy" decoding="async"
+             width="480" height="291" decoding="async"
              onerror="this.onerror=null;this.src='/assets/studioland_mgmt_1.png'" />
       </a>
     </div>

@@ -271,7 +271,10 @@
      it would float the top ray a long way above the flap while pressing the
      outer two into the corners. Hugging each outline is what keeps the
      spacing reading as deliberate. */
-  var RAY = { bearings: [-60, -30, 0, 30, 60], gap: 12, len: 13 };
+  /* gap 15: rendered 9 / 12 / 15 at both shipping sizes and picked from the
+     ladder. The looser standoff lets the rays read as their own gesture
+     rather than as a fringe on the artwork. */
+  var RAY = { bearings: [-60, -30, 0, 30, 60], gap: 15, len: 13 };
 
   /* Each silhouette as a rounded box — a circle is just a box whose corner
      radius equals its half-size, so one expression covers all three. */

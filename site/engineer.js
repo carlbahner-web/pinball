@@ -8,6 +8,8 @@
      The signature motion: the same stroke redrawn slightly differently on a
      ~8fps three-phase clock, like cels traced by hand. Every torn panel edge
      reads off --edge, so cycling that one variable boils the whole page.
+     The torn silhouette itself lives in a separate, fixed #tear pass — only
+     the small boil pass cycles, so the edge breathes instead of re-rolling.
 
      What deliberately does NOT boil, per the rules:
        - text (labels stay crisp above the boiling shapes)
@@ -18,7 +20,7 @@
      Held still for prefers-reduced-motion, for a hidden tab, and for
      <html data-boil="off">. */
 
-  var PHASES = ['url(#rough-edge-0)', 'url(#rough-edge-1)', 'url(#rough-edge-2)'];
+  var PHASES = ['url(#boil-0)', 'url(#boil-1)', 'url(#boil-2)'];
   var FRAME_MS = 125;                     // 8fps
   var root = document.documentElement;
 

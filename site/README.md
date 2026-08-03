@@ -103,6 +103,11 @@ font requests need a CORS header on them. Same origin, no issue.
   which matches the Showit mockup but not the component spec. Adding a cream
   stroke and an offset shadow is a handful of lines; it's a design change, so
   it's yours to call.
+- **`boil-canvas.html`, if the social marks should boil.** They're drawn
+  linework, so they'd need the path-re-emission boil, not the filter — and
+  v3 forbids reimplementing either from prose. The file would have to come
+  across; its numbers (lattice 46 design units, phase offset +7.31, the
+  amplitude registry) aren't enough to work from without it.
 - **The DW Fairfield Narrow cut** isn't among the webfonts — only the regular
   is wired. Nothing here needs Narrow, but that's why it's absent from the
   stack.
@@ -146,8 +151,23 @@ never cropped-and-tiled, never scaled at paint time.
 **Box1 (2.3).** Every dark panel is a Box1, its edge painted by the boil's
 displaced shape. On mobile they go full-bleed as bands.
 
-**The boil (2.6).** This is `design-system/components/boil.html` copied
-verbatim — the packaged recipe, not a reimplementation. v3 is explicit that
+**The boil (2.6).** There are two boils and they are not interchangeable —
+the SVG displacement filter for DOM shapes, path re-emission for drawn
+linework. This page is buttons, cards and panels, so it takes the DOM one:
+`design-system/components/boil.html`, copied verbatim rather than
+reimplemented.
+
+Worth knowing, because it cost this page several rounds: an attempt here
+solved each panel's outline as a wobbling vector path and swapped paths on
+the clock. That is the *canvas* boil's mechanism applied to a DOM surface —
+the wrong half of the table — and it looked wrong for exactly that reason.
+The filter goes on DOM shapes; paths get re-emitted. Neither substitutes for
+the other.
+
+Nothing drawn on this page runs through the filter: the three social marks
+are hand-drawn linework and stay untouched, and every bitmap (the lockup,
+the photo, BUZZ) gets a boiling shape *behind* it, never a warp — 2.6's
+silhouette rule. The filter's only input is a single `<rect>`. v3 is explicit that
 re-deriving it from prose produces something over-complicated and wrong, and
 this page proved that the hard way before the file turned up: it ran at scale
 13 and then 22 across three and four octaves, five to eight times the

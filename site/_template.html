@@ -35,6 +35,42 @@
         <feColorMatrix in="t" type="matrix" values="0.3 0 0 0 0.35  0 1 0 0 0  0 0 1 0 0  0 0 0 1 0" result="tb" />
         <feDisplacementMap in="SourceGraphic" in2="tb" scale="7" xChannelSelector="R" yChannelSelector="G" />
       </filter>
+
+      <!-- A BOILING OUTLINE FOR FLAT ARTWORK.
+
+           Gives a raster mascot an inked edge that breathes, without
+           touching the artwork itself: grow the alpha into a slightly larger
+           silhouette, flood it charcoal, boil THAT, and lay the untouched
+           original back on top. Only the ring that sticks out past the
+           artwork is ever visible, so the drawing stays perfectly still and
+           its outline is the thing that moves.
+
+           Grown from the alpha rather than scaled up. Scaling a charcoal
+           copy behind the art is the obvious way to fake a stroke and it
+           gives an uneven one — the offset is proportional to distance from
+           the transform origin, so it's hairline at the middle and heavy at
+           the hands and feet. A dilate is the same weight everywhere.
+
+           radius 4 is a flat 4 CSS px, not a proportion, so the stroke is
+           relatively heavier on a small mascot than a large one. That is the
+           right way round: a stroke that scaled down would disappear on a
+           landscape phone, where BUZZ is only 90px wide.
+
+           scale 3, well under the panels' 7. The ring is only 4px proud of
+           the artwork, so displacement much past that pulls it out from
+           behind the drawing on one side and swallows it on the other. -->
+      <filter id="slInkEdge" x="-14%" y="-14%" width="128%" height="128%">
+        <feMorphology in="SourceAlpha" operator="dilate" radius="4" result="fat" />
+        <feFlood flood-color="#2C2C2A" result="ink" />
+        <feComposite in="ink" in2="fat" operator="in" result="sil" />
+        <feTurbulence class="sl-seed" type="fractalNoise" baseFrequency="0.02" numOctaves="1" seed="2" result="et" />
+        <feColorMatrix in="et" type="matrix" values="0.3 0 0 0 0.35  0 1 0 0 0  0 0 1 0 0  0 0 0 1 0" result="etb" />
+        <feDisplacementMap in="sil" in2="etb" scale="3" xChannelSelector="R" yChannelSelector="G" result="edge" />
+        <feMerge>
+          <feMergeNode in="edge" />
+          <feMergeNode in="SourceGraphic" />
+        </feMerge>
+      </filter>
     </defs>
   </svg>
 

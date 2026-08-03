@@ -467,8 +467,16 @@ svg.sl-boil rect.face {
 }
 
 /* height: auto is required, not decorative — the intrinsic height attribute
-   on the img is a presentational hint and wins if CSS sets only width. */
-.mascot-row__mascot { width: clamp(120px, 14vw, 190px); height: auto; }
+   on the img is a presentational hint and wins if CSS sets only width.
+
+   The filter inks BUZZ's outline and boils it while leaving the drawing
+   itself still — see #slInkEdge in the page head. It changes no geometry:
+   the ring lives inside the filter region, so nothing here reflows. */
+.mascot-row__mascot {
+  width: clamp(120px, 14vw, 190px);
+  height: auto;
+  filter: url(#slInkEdge);
+}
 
 .social {
   display: flex;

@@ -593,10 +593,22 @@ svg.sl-boil rect.face {
 }
 
 /* ==========================================================================
-   Mobile — cards become full-bleed torn bands
+   Mobile — the grid collapses to one stacked column
+
+   Stacking is about SHAPE, not width. A landscape phone is 844px wide and
+   390px tall: on a width-only breakpoint it inherited the layout meant for a
+   390px-wide portrait screen, which threw away all that width and made the
+   page twice as long as it needed to be.
+
+   Read the query as two cases. Under 700px always stack — two columns below
+   that leaves about 26 characters a line, which is not a column, it is a
+   gutter. Between 700 and 900, stack only when the viewport is portrait-ish;
+   a landscape phone in that band has the width for the two-column grid and
+   badly needs the scroll it saves.
    ========================================================================== */
 
-@media (max-width: 900px) {
+@media (max-width: 699px),
+       (max-width: 900px) and (max-aspect-ratio: 1 / 1) {
 
   .topbar__nav  { display: none; }
   .topbar__menu { display: block; }
@@ -737,6 +749,23 @@ svg.sl-boil rect.face {
 @media (max-height: 520px) and (min-width: 480px) {
   .page { padding-top: 14px; padding-bottom: 20px; }
   .grid { gap: 14px; }
+
+}
+
+/* Let the COLUMN govern the photo, not the viewport height. 72vh is the right
+   cap on a tall screen, where it stops the photo eating the whole page. On a
+   390px-tall landscape phone it means 281px, which left the photo 204px wide
+   inside a 383px column — a small picture marooned in a large panel with
+   572px of empty ground under it. Sized by width instead it fills its column,
+   as it does in the mockup.
+
+   min-width 700px is load-bearing, and matches the layout query above: this
+   is only safe where the photo is in a HALF-width column. Applied to a short
+   viewport that is still single-column — an iPhone SE in landscape, 667px
+   wide — it hands the photo the full page width and it renders 808px tall,
+   2.2 screens, which is the exact complaint that put the cap there. */
+@media (min-width: 700px) and (max-height: 520px) and (min-aspect-ratio: 1 / 1) {
+  .photo-card img { max-height: none; }
   .mascot-row { padding: 24px 24px 28px; gap: 20px; }
   .mascot-row__mascot { width: clamp(90px, 10vw, 130px); }
 

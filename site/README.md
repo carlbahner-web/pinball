@@ -18,7 +18,7 @@ site/
     Buzz The Mascot5.png    BUZZ
     website-noise-3.webp    the paper grain, flattened onto white
     logo.png                the plain wordmark (cream build)
-    yago-mann.jpg           low-res crop out of the screenshot — replace
+    yago-mann.webp          Yago's photo
     mascot-placeholder.svg  stand-ins, only appear if an asset 404s
     photo-placeholder.svg
 ```
@@ -88,16 +88,14 @@ font requests need a CORS header on them. Same origin, no issue.
 
 ## Still owed
 
-- **Yago's photo.** `assets/yago-mann.jpg` is cropped out of the screenshot,
-  so it's soft. There's no `yago-mann.webp` on the site yet — upload one and
-  point the `<img src>` at it like the other engineers.
+- **`TAYWingman.woff2`.** Only the `.woff` exists, so body text loads at
+  roughly 30% more weight than it needs to.
 - **A distress sheet**, if you want Tier-2 weathering. `card--weathered`
-  expects `/assets/plate-01.png` (density-on-white, no alpha); nothing at
-  that path yet, so the class is inert until one lands.
+  expects `/assets/plate-01.png` (density-on-white, no alpha); nothing at that
+  path yet, so the class is inert until one lands.
 - **The DW Fairfield Narrow cut** isn't among the webfonts — only the regular
-  is wired. Nothing on this page needs Narrow, but that's why it's absent
-  from the stack. `TAYWingman.woff2` is missing too; the `.woff` loads in its
-  place, at roughly 30% more weight.
+  is wired. Nothing here needs Narrow, but that's why it's absent from the
+  stack.
 - **The lockup's ink is `#2D2D2D`,** one step off canonical Charcoal
   `#2C2C2A`. Invisible in practice, but by 1.1 the asset is the thing that's
   wrong, so it's worth a pass next time that file is regenerated.
@@ -131,8 +129,7 @@ most (σ 3.55 vs 0.97) — the light flecks wash the color toward grey. Multiply
 holds the hue and only deepens value, exactly as 2.2 says. Under multiply the
 light flecks are no-ops and the dark specks do the work, which is what you see.
 
-Tier 2 is the
-`card--weathered` class: it lands a **whole, fitted** distress sheet on a
+Tier 2 is the `card--weathered` class: it lands a **whole, fitted** distress sheet on a
 panel's ground while the contents stay clean on top — multiply, never normal,
 never cropped-and-tiled, never scaled at paint time.
 

@@ -5,7 +5,7 @@
     <path d="M170 560c0-80 58-140 130-140s130 60 130 140" />
   </g>
   <text x="300" y="660" fill="#fcf7e8" opacity="0.6" font-size="26"
-        font-family="'Space Grotesk', monospace" text-anchor="middle">
-    add assets/yago-mann.jpg
+        font-family="'TAY Wingman', sans-serif" text-anchor="middle">
+    engineer photo goes here
   </text>
 </svg>

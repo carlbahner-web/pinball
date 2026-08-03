@@ -6,12 +6,18 @@
 
   /* ---- The boil (Brand Bible 2.6) -------------------------------------
      The signature motion: the same contour redrawn slightly differently on a
-     three-phase clock, like cels traced by hand. Every panel edge reads off
-     --edge, so cycling that one variable boils the whole page.
+     three-cel clock, like linework traced by hand.
 
-     Three cels at 12fps loop every quarter second. If the repeat becomes
-     recognisable, add seeded #rough-edge filters and list them in PHASES —
-     that lengthens the loop without touching the clock.
+     The contours are GEOMETRY, not filters. An SVG filter recomputes
+     feTurbulence for every pixel of every panel on every frame, which is fine
+     for one small element and ruinous for five big ones twelve times a
+     second — the large panels fall behind and the page judders. Here each
+     cel's outline is solved once as a path, and animating is swapping a `d`
+     attribute: no per-frame pixel work at all.
+
+     Smooth by construction, too. The outline is a sum of a few harmonics
+     around the perimeter, drawn through a Catmull-Rom spline, so it curves
+     like a brush instead of spiking like a tear.
 
      What deliberately does NOT boil, per the rules:
        - text (labels stay crisp above the boiling shapes)
@@ -22,12 +28,9 @@
      Held still for prefers-reduced-motion, for a hidden tab, and for
      <html data-boil="off">. */
 
-  var PHASES = ['url(#rough-edge-0)', 'url(#rough-edge-1)', 'url(#rough-edge-2)'];
-  // 12fps — classic cel animation ran on twos: 12 drawings per second against
-  // a 24fps camera. (The bible says ~8; this is the authentic cadence, chosen
-  // deliberately.) Expressed as a rate so the number you read is the number
-  // you set.
-  var FPS = 12;
+  var NS = 'http://www.w3.org/2000/svg';
+  var CELS = 3;                  // three drawings in the cycle
+  var FPS = 12;                  // on twos: 12 drawings against a 24fps camera
   var FRAME_MS = 1000 / FPS;
   var root = document.documentElement;
 
@@ -36,29 +39,164 @@
     (window.matchMedia &&
      window.matchMedia('(prefers-reduced-motion: reduce)').matches);
 
-  if (!stillWanted) {
-    var phase = 0;
-    var next = null;
+  /* A closed, smooth, seeded wobble: harmonics summed around the perimeter.
+     Periodic by construction, so the contour meets itself cleanly. */
+  function wobble(seed) {
+    var K = 4, amp = [], phase = [], k;
+    var r = seed * 9301 + 49297;
+    var rand = function () { r = (r * 9301 + 49297) % 233280; return r / 233280; };
+    var norm = 0;
+    for (k = 1; k <= K; k++) { amp.push(1 / k); phase.push(rand() * Math.PI * 2); norm += 1 / k; }
+    return function (t) {
+      var v = 0;
+      for (var i = 0; i < K; i++) v += amp[i] * Math.sin(2 * Math.PI * (i + 1) * t + phase[i]);
+      return v / norm;
+    };
+  }
 
-    // Advance the deadline by a whole frame each time rather than resetting it
-    // to now. Resetting quantises up to the next vsync -- 125ms becomes 133ms
-    // on a 60Hz display, i.e. 7.5fps -- whereas accumulating lets gaps
-    // alternate 133/117 and average out to the 125ms the clock asks for.
+  /* Walk a rounded rectangle by arc length, returning point + outward normal. */
+  function outline(w, h, r, steps) {
+    r = Math.max(0, Math.min(r, Math.min(w, h) / 2));
+    var straight = 2 * (w - 2 * r) + 2 * (h - 2 * r);
+    var arcs = 2 * Math.PI * r;
+    var total = straight + arcs;
+    var pts = [];
+    for (var i = 0; i < steps; i++) {
+      var s = (i / steps) * total, x, y, nx, ny, a;
+      var top = w - 2 * r, side = h - 2 * r, q = (Math.PI / 2) * r;
+      if (s < top) { x = r + s; y = 0; nx = 0; ny = -1; }
+      else if ((s -= top) < q) { a = -Math.PI / 2 + s / r; x = w - r + Math.cos(a) * r; y = r + Math.sin(a) * r; nx = Math.cos(a); ny = Math.sin(a); }
+      else if ((s -= q) < side) { x = w; y = r + s; nx = 1; ny = 0; }
+      else if ((s -= side) < q) { a = s / r; x = w - r + Math.cos(a) * r; y = h - r + Math.sin(a) * r; nx = Math.cos(a); ny = Math.sin(a); }
+      else if ((s -= q) < top) { x = w - r - s; y = h; nx = 0; ny = 1; }
+      else if ((s -= top) < q) { a = Math.PI / 2 + s / r; x = r + Math.cos(a) * r; y = h - r + Math.sin(a) * r; nx = Math.cos(a); ny = Math.sin(a); }
+      else if ((s -= q) < side) { x = 0; y = h - r - s; nx = -1; ny = 0; }
+      else { a = Math.PI + (s - side) / r; x = r + Math.cos(a) * r; y = r + Math.sin(a) * r; nx = Math.cos(a); ny = Math.sin(a); }
+      pts.push([x, y, nx, ny, i / steps]);
+    }
+    return pts;
+  }
+
+  /* Catmull-Rom through the offset points, emitted as cubic beziers. */
+  function celPath(w, h, radius, amp, noise) {
+    var steps = Math.max(28, Math.min(150, Math.round((w + h) / 11)));
+    var base = outline(w, h, radius, steps);
+    var P = base.map(function (p) {
+      var d = noise(p[4]) * amp;
+      return [p[0] + p[2] * d, p[1] + p[3] * d];
+    });
+    var n = P.length, d = 'M' + P[0][0].toFixed(1) + ',' + P[0][1].toFixed(1);
+    for (var i = 0; i < n; i++) {
+      var p0 = P[(i - 1 + n) % n], p1 = P[i], p2 = P[(i + 1) % n], p3 = P[(i + 2) % n];
+      d += 'C' + (p1[0] + (p2[0] - p0[0]) / 6).toFixed(1) + ',' + (p1[1] + (p2[1] - p0[1]) / 6).toFixed(1) +
+           ' ' + (p2[0] - (p3[0] - p1[0]) / 6).toFixed(1) + ',' + (p2[1] - (p3[1] - p1[1]) / 6).toFixed(1) +
+           ' ' + p2[0].toFixed(1) + ',' + p2[1].toFixed(1);
+    }
+    return d + 'Z';
+  }
+
+  var noises = [];
+  for (var c = 0; c < CELS; c++) noises.push(wobble(7 + c * 16));
+
+  var panels = [];
+
+  function build(panel) {
+    var cs = getComputedStyle(panel.el);
+    var box = panel.el.getBoundingClientRect();
+    var bx = parseFloat(cs.getPropertyValue('--cel-x')) || 0;
+    var by = parseFloat(cs.getPropertyValue('--cel-y')) || 0;
+    var w = Math.round(box.width + bx * 2), h = Math.round(box.height + by * 2);
+    // Fail loudly rather than feeding a runaway: if a stylesheet change ever
+    // puts the contour back in flow, its width feeds the panel that sizes it.
+    if (w > window.innerWidth * 4 || h > window.innerHeight * 12) {
+      panel.svg.style.display = 'none';
+      return;
+    }
+    // --cel-on lets the stylesheet decide which elements carry a contour at a
+    // given breakpoint, rather than duplicating that logic here
+    if (cs.getPropertyValue('--cel-on').trim() === '0') {
+      panel.svg.style.display = 'none';
+      panel.w = panel.h = 0;
+      return;
+    }
+    panel.svg.style.display = '';
+    if (!w || !h || (w === panel.w && h === panel.h)) return;
+    panel.w = w; panel.h = h;
+    panel.svg.setAttribute('viewBox', '0 0 ' + w + ' ' + h);
+    panel.svg.style.width = w + 'px';
+    panel.svg.style.height = h + 'px';
+    var radius = parseFloat(cs.getPropertyValue('--cel-radius')) || 26;
+    var amp = parseFloat(cs.getPropertyValue('--cel-amp')) || 6;
+    panel.d = noises.map(function (n) { return celPath(w, h, radius, amp, n); });
+    panel.path.setAttribute('d', panel.d[panel.phase || 0]);
+  }
+
+  function attach(el) {
+    var svg = document.createElementNS(NS, 'svg');
+    svg.setAttribute('class', 'cel');
+    svg.setAttribute('aria-hidden', 'true');
+    svg.setAttribute('preserveAspectRatio', 'none');
+    var path = document.createElementNS(NS, 'path');
+    svg.appendChild(path);
+    el.insertBefore(svg, el.firstChild);
+    var panel = { el: el, svg: svg, path: path, phase: 0, w: 0, h: 0, d: [] };
+    panels.push(panel);
+    build(panel);
+  }
+
+  Array.prototype.forEach.call(
+    document.querySelectorAll('.card, .name-block, .bio-body, .logo--on-ink'),
+    attach
+  );
+
+  if (panels.length) {
+    root.classList.add('has-cel');
+    // the class swaps the CSS box for the drawn one; sizes change with it
+    panels.forEach(function (p) { p.w = 0; build(p); });
+  }
+
+  /* A panel's height is not settled at parse time — the photo card grows when
+     its image arrives, and the bands reflow at the breakpoint. Watch each
+     panel rather than the window, or the contour keeps the size it was born
+     with and the content overruns it. build() only touches an absolutely
+     positioned child, so observing here cannot feed back into itself. */
+  if (window.ResizeObserver) {
+    var ro = new ResizeObserver(function (entries) {
+      for (var i = 0; i < entries.length; i++) {
+        var panel = entries[i].target._celPanel;
+        if (panel) build(panel);
+      }
+    });
+    panels.forEach(function (p) { p.el._celPanel = p; ro.observe(p.el); });
+  } else {
+    var resizeTimer;
+    window.addEventListener('resize', function () {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(function () { panels.forEach(build); }, 150);
+    });
+    window.addEventListener('load', function () { panels.forEach(build); });
+  }
+
+  if (!stillWanted && panels.length) {
+    var phase = 0, next = null;
+
+    // Advance the deadline by a whole frame rather than resetting it to now:
+    // resetting quantises up to the next vsync and runs slow.
     var tick = function (now) {
       if (next === null) next = now;
       if (now >= next) {
-        // a hidden tab or a long stall leaves the deadline far behind; resync
-        // instead of firing a burst of catch-up phases
         next = (now - next > FRAME_MS * 4) ? now + FRAME_MS : next + FRAME_MS;
-        phase = (phase + 1) % PHASES.length;
-        root.style.setProperty('--edge', PHASES[phase]);
+        phase = (phase + 1) % CELS;
+        for (var i = 0; i < panels.length; i++) {
+          var p = panels[i];
+          if (p.d.length) { p.phase = phase; p.path.setAttribute('d', p.d[phase]); }
+        }
       }
       if (!document.hidden) requestAnimationFrame(tick);
     };
 
     requestAnimationFrame(tick);
 
-    // rAF stops in a background tab; restart the clock when we come back
     document.addEventListener('visibilitychange', function () {
       if (!document.hidden) { next = null; requestAnimationFrame(tick); }
     });

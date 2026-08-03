@@ -18,7 +18,7 @@
 
   /* Roles on this page (point these at palette entries, not raw hexes) */
   --ground:      var(--midway-mustard);  /* the page's textured ground */
-  --ink:         var(--charcoal);        /* torn Box1 panels */
+  --ink:         var(--charcoal);        /* inked Box1 panels */
   --ink-on-dark: var(--cream);           /* type inside the panels */
   --band-soft:   var(--foggy-mint);      /* footer nav band */
   --band-deep:   var(--harbor-teal);     /* copyright bar */
@@ -40,13 +40,19 @@
   --page-max:   1280px;   /* max content width */
   --gutter:     28px;     /* space between the two columns */
   --card-pad:   38px;     /* inner padding of a torn card */
-  --radius:     22px;     /* base card corner before the rough filter */
+  --radius:     22px;     /* corner radius before JS draws the contour */
 
-  /* ---- Torn paper edge / boil (2.6) ----
-     --edge is swapped between three seeded filters on an 8fps clock by
-     engineer.js. Set data-boil="off" on <html> to hold it still. */
-  --tear:       7px;      /* how far the torn edge bleeds past the content box */
-  --edge:       url(#rough-edge-0);
+  /* ---- Inked cel contour / boil (2.6) ----
+     engineer.js draws each panel's outline as an SVG path and swaps between
+     three cels at 12fps. Nothing is filtered at runtime, so the cost is a
+     path repaint rather than a per-pixel turbulence pass.
+     Set data-boil="off" on <html> to hold it still. */
+  --tear:       7px;      /* how far the drawn edge bleeds past the content box */
+  --cel-x:      7px;      /* the same bleed, split by axis so the mobile bands */
+  --cel-y:      7px;      /* can run wide without the contour losing its size */
+  --cel-on:     1;        /* 0 skips drawing a contour for that element */
+  --cel-radius: 26;       /* corner radius of the drawn contour, in px */
+  --cel-amp:    6;        /* how far the ink wanders off true, in px */
 }
 
 /* ==========================================================================
@@ -57,7 +63,7 @@
 
 html {
   -webkit-text-size-adjust: 100%;
-  /* the torn edges bleed sideways past the viewport on mobile */
+  /* the inked contours bleed sideways past the viewport on mobile */
   overflow-x: hidden;
 }
 
@@ -89,9 +95,6 @@ body {
 img { max-width: 100%; display: block; }
 a   { color: inherit; text-decoration: none; }
 
-/* Hidden SVG that holds the rough-edge filter */
-.svg-defs { position: absolute; width: 0; height: 0; overflow: hidden; }
-
 /* Screen-reader only */
 .sr-only {
   position: absolute; width: 1px; height: 1px;
@@ -100,9 +103,10 @@ a   { color: inherit; text-decoration: none; }
 }
 
 /* ==========================================================================
-   Torn-paper card
-   A pseudo-element carries the black shape so the SVG displacement filter
-   roughs up the EDGE without smearing the text sitting on top of it.
+   Panel (Box1)
+   The panel's dark shape sits behind its own content, so the inked contour
+   never smears the text sitting on top of it. engineer.js replaces the plain
+   pseudo-element with a drawn one; see .cel below.
    ========================================================================== */
 
 .card {
@@ -117,11 +121,37 @@ a   { color: inherit; text-decoration: none; }
   inset: calc(var(--tear) * -1);
   background: var(--ink);
   border-radius: var(--radius);
-  filter: var(--edge);
   z-index: 0;
 }
 
 .card > * { position: relative; z-index: 1; }
+
+/* The drawn contour, in the box the pseudo-element used to occupy. The
+   pseudo-element steps aside once JS has drawn one, so a no-JS page still
+   gets a solid panel — just without the wobble.
+   Only the offsets are set here: a viewBox gives an <svg> an intrinsic aspect
+   ratio, and an absolutely positioned replaced element with four insets and
+   auto sizing follows that ratio instead of filling its box. JS sets the
+   pixel width and height to match. */
+/* `svg.cel`, not `.cel`: the mobile band rules set `position: relative` on
+   every child via `.qa-card > *` and friends, which is the same specificity
+   and sits later in this file. A relatively positioned contour lands in flow,
+   and its explicit width then feeds the grid column that sizes the panel —
+   the panel grows, the contour is rebuilt wider, and away it goes. */
+svg.cel {
+  position: absolute;
+  top: calc(var(--cel-y) * -1);
+  left: calc(var(--cel-x) * -1);
+  display: block;
+  overflow: visible;
+  z-index: 0;
+  pointer-events: none;
+}
+
+svg.cel path { fill: var(--ink); }
+
+.has-cel .card::before,
+.has-cel .logo--on-ink::before { display: none; }
 
 /* Tier 2 — the weathering PLATE (2.2). Add `card--weathered` to give a panel
    its own pass of print wear. The plate lands on the panel's GROUND only; the
@@ -170,6 +200,10 @@ a   { color: inherit; text-decoration: none; }
   position: relative;
   display: inline-block;
   padding: 10px 18px;
+  --cel-radius: 10;
+  --cel-amp: 3;
+  --cel-x: 0px;
+  --cel-y: 0px;
 }
 
 .logo--on-ink::before {
@@ -178,7 +212,6 @@ a   { color: inherit; text-decoration: none; }
   inset: 0;
   background: var(--ink);
   border-radius: 10px;
-  filter: var(--edge);
   z-index: 0;
 }
 
@@ -242,6 +275,12 @@ a   { color: inherit; text-decoration: none; }
 .spotify-card { grid-column: 2; grid-row: 2; }
 
 /* ---- Name block ---- */
+
+/* On desktop these two live inside the bio card and share its contour; only
+   at the mobile breakpoint, where they split into their own bands, do they
+   get one of their own. */
+.name-block,
+.bio-body { --cel-on: 0; }
 
 .name-block { text-align: center; }
 
@@ -439,6 +478,9 @@ a   { color: inherit; text-decoration: none; }
      it explicitly. */
   .bio-card { display: contents; }
   .bio-card::before { content: none; }
+  .bio-card { --cel-on: 0; }
+  .name-block,
+  .bio-body { --cel-on: 1; }
 
   /* single column: name → photo → bio → spotify → Q&A */
   .name-block   { order: 1; }
@@ -473,7 +515,6 @@ a   { color: inherit; text-decoration: none; }
     right: -20px;
     background: var(--ink);
     border-radius: var(--radius);
-    filter: var(--edge);
     z-index: 0;
   }
 
@@ -481,6 +522,16 @@ a   { color: inherit; text-decoration: none; }
   .bio-body > *,
   .qa-card > *,
   .spotify-card > * { position: relative; z-index: 1; }
+
+  .name-block,
+  .bio-body,
+  .qa-card,
+  .spotify-card { --cel-x: 20px; }
+
+  .has-cel .name-block::before,
+  .has-cel .bio-body::before,
+  .has-cel .qa-card::before,
+  .has-cel .spotify-card::before { display: none; }
 
   .name-block { padding-top: 30px; padding-bottom: 30px; }
   .name-block h1 { font-size: 38px; }

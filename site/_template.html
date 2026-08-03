@@ -13,6 +13,22 @@
 <!-- data-boil="off" holds the linework still. -->
 <body>
 
+  <!-- THE BOIL — packaged StudioLand recipe, copied verbatim from the
+       reference implementation. The numbers are deliberately small: bigger
+       scale reads drunk, higher frequency reads electric. baseFrequency is
+       ISOTROPIC (one value; two reads busy). The region margins are required
+       or the displaced edge clips flat against an invisible box.
+       engineer.js steps `seed` between 2 / 9 / 15 at ~130ms. -->
+  <svg class="sl-defs" aria-hidden="true" focusable="false">
+    <defs>
+      <filter id="slBoil" x="-25%" y="-30%" width="155%" height="175%">
+        <feTurbulence class="sl-seed" type="fractalNoise" baseFrequency="0.02" numOctaves="1" seed="2" result="t" />
+        <feColorMatrix in="t" type="matrix" values="0.3 0 0 0 0.35  0 1 0 0 0  0 0 1 0 0  0 0 0 1 0" result="tb" />
+        <feDisplacementMap in="SourceGraphic" in2="tb" scale="2.7" xChannelSelector="R" yChannelSelector="G" />
+      </filter>
+    </defs>
+  </svg>
+
   <header class="topbar">
     <div class="topbar__inner">
       <a class="topbar__logo" href="/" aria-label="STUDIOLAND MGMT home">

@@ -42,20 +42,16 @@
   --card-pad:   38px;     /* inner padding of a torn card */
   --radius:     22px;     /* corner radius before JS draws the contour */
 
-  /* ---- Inked cel contour / boil (2.6) ----
-     engineer.js draws each panel's outline as an SVG path and swaps between
-     three cels at 8fps. Nothing is filtered at runtime, so the cost is a
-     path repaint rather than a per-pixel turbulence pass.
+  /* ---- Inked shape / boil (2.6) ----
+     The packaged StudioLand recipe: a displaced SVG shape behind the content,
+     stepping between three fixed seeds at ~8fps. The numbers live on the
+     filter in the page head and are deliberately small — see engineer.js.
      Set data-boil="off" on <html> to hold it still. */
-  --tear:       7px;      /* how far the drawn edge bleeds past the content box */
+  --tear:       7px;      /* how far the inked shape bleeds past the content box */
   --cel-x:      7px;      /* the same bleed, split by axis so the mobile bands */
-  --cel-y:      7px;      /* can run wide without the contour losing its size */
-  --cel-on:     1;        /* 0 skips drawing a contour for that element */
-  --cel-radius: 26;       /* corner radius of the drawn contour, in px */
-  --cel-amp:    3;        /* how far the ink wanders off true, in px */
-  --cel-wave:   65;       /* distance between wobbles, in px — this is what
-                             keeps the ink reading the same size on a tall
-                             card and on the little logo chip */
+  --cel-y:      7px;      /* can run full width without losing the shape */
+  --cel-on:     1;        /* 0 skips the inked shape for that element */
+  --cel-radius: 16px;     /* rect corner — 16 for panels, 11 for buttons */
 }
 
 /* ==========================================================================
@@ -98,6 +94,9 @@ body {
 img { max-width: 100%; display: block; }
 a   { color: inherit; text-decoration: none; }
 
+/* the filter lives here but paints nowhere */
+.sl-defs { position: absolute; width: 0; height: 0; overflow: hidden; }
+
 /* Screen-reader only */
 .sr-only {
   position: absolute; width: 1px; height: 1px;
@@ -129,32 +128,46 @@ a   { color: inherit; text-decoration: none; }
 
 .card > * { position: relative; z-index: 1; }
 
-/* The drawn contour, in the box the pseudo-element used to occupy. The
-   pseudo-element steps aside once JS has drawn one, so a no-JS page still
-   gets a solid panel — just without the wobble.
-   Only the offsets are set here: a viewBox gives an <svg> an intrinsic aspect
-   ratio, and an absolutely positioned replaced element with four insets and
-   auto sizing follows that ratio instead of filling its box. JS sets the
-   pixel width and height to match. */
-/* `svg.cel`, not `.cel`: the mobile band rules set `position: relative` on
-   every child via `.qa-card > *` and friends, which is the same specificity
-   and sits later in this file. A relatively positioned contour lands in flow,
-   and its explicit width then feeds the grid column that sizes the panel —
-   the panel grows, the contour is rebuilt wider, and away it goes. */
-svg.cel {
+/* The inked shape layer, in the box the pseudo-element used to occupy. That
+   pseudo-element steps aside once JS has inserted a shape, so a no-JS page
+   still gets a solid panel — just without the wobble.
+
+   `svg.sl-boil`, not `.sl-boil`: the mobile band rules set `position:
+   relative` on every child through `.qa-card > *`, same specificity and later
+   in this file, and a relatively positioned shape lands in flow.
+
+   Width and height are required. SVG is a replaced element: offsets alone
+   leave it at its 300x150 intrinsic size. */
+svg.sl-boil {
   position: absolute;
-  top: calc(var(--cel-y) * -1);
   left: calc(var(--cel-x) * -1);
+  top: calc(var(--cel-y) * -1);
+  width: calc(100% + var(--cel-x) * 2);
+  height: calc(100% + var(--cel-y) * 2);
   display: block;
   overflow: visible;
   z-index: 0;
   pointer-events: none;
 }
 
-svg.cel path { fill: var(--ink); }
+/* The rect IS the panel: its displaced fill edge is the border. Inset by half
+   a stroke so the edge has room to wander without clipping. */
+svg.sl-boil rect.face {
+  x: 2px;
+  y: 2px;
+  width: calc(100% - 4px);
+  height: calc(100% - 4px);
+  rx: var(--cel-radius);
+  ry: var(--cel-radius);
+  fill: var(--ink);
+}
 
-.has-cel .card::before,
-.has-cel .logo--on-ink::before { display: none; }
+@media (prefers-reduced-motion: reduce) {
+  svg.sl-boil g { filter: none; }
+}
+
+.has-boil .card::before,
+.has-boil .logo--on-ink::before { display: none; }
 
 /* Tier 2 — the weathering PLATE (2.2). Add `card--weathered` to give a panel
    its own pass of print wear. The plate lands on the panel's GROUND only; the
@@ -203,9 +216,7 @@ svg.cel path { fill: var(--ink); }
   position: relative;
   display: inline-block;
   padding: 10px 18px;
-  --cel-radius: 10;
-  --cel-amp: 1.5;
-  --cel-wave: 30;
+  --cel-radius: 11px;   /* the recipe's button radius */
   --cel-x: 0px;
   --cel-y: 0px;
 }
@@ -287,6 +298,12 @@ svg.cel path { fill: var(--ink); }
 .bio-body { --cel-on: 0; }
 
 .name-block { text-align: center; }
+
+/* Belt and braces against the failure above: keep this content above any
+   shape layer at every breakpoint, not only at the one where these elements
+   carry a shape of their own. */
+.name-block > *,
+.bio-body > * { position: relative; z-index: 1; }
 
 .name-block h1 {
   margin: 0;
@@ -532,10 +549,10 @@ svg.cel path { fill: var(--ink); }
   .qa-card,
   .spotify-card { --cel-x: 20px; }
 
-  .has-cel .name-block::before,
-  .has-cel .bio-body::before,
-  .has-cel .qa-card::before,
-  .has-cel .spotify-card::before { display: none; }
+  .has-boil .name-block::before,
+  .has-boil .bio-body::before,
+  .has-boil .qa-card::before,
+  .has-boil .spotify-card::before { display: none; }
 
   .name-block { padding-top: 30px; padding-bottom: 30px; }
   .name-block h1 { font-size: 38px; }

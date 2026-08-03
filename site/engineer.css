@@ -41,7 +41,7 @@
   /* 17px, not 15. This face's x-height is 0.47 of its size against system-ui's
      0.56, so it renders about 20% smaller than the number suggests: 15px reads
      like 13px system text, and the old sub-420px 14px override read like 12px. */
-  --body-size:     17px;
+  --body-size:     16px;
 
   /* ---- Layout ---- */
   --page-max:   1280px;   /* max content width */

@@ -29,11 +29,18 @@
 
   if (!stillWanted) {
     var phase = 0;
-    var last = 0;
+    var next = null;
 
+    // Advance the deadline by a whole frame each time rather than resetting it
+    // to now. Resetting quantises up to the next vsync -- 125ms becomes 133ms
+    // on a 60Hz display, i.e. 7.5fps -- whereas accumulating lets gaps
+    // alternate 133/117 and average out to the 125ms the clock asks for.
     var tick = function (now) {
-      if (now - last >= FRAME_MS) {
-        last = now;
+      if (next === null) next = now;
+      if (now >= next) {
+        // a hidden tab or a long stall leaves the deadline far behind; resync
+        // instead of firing a burst of catch-up phases
+        next = (now - next > FRAME_MS * 4) ? now + FRAME_MS : next + FRAME_MS;
         phase = (phase + 1) % PHASES.length;
         root.style.setProperty('--edge', PHASES[phase]);
       }
@@ -44,7 +51,7 @@
 
     // rAF stops in a background tab; restart the clock when we come back
     document.addEventListener('visibilitychange', function () {
-      if (!document.hidden) { last = 0; requestAnimationFrame(tick); }
+      if (!document.hidden) { next = null; requestAnimationFrame(tick); }
     });
   }
 

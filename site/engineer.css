@@ -352,7 +352,9 @@ a   { color: inherit; text-decoration: none; }
   flex-wrap: wrap;
 }
 
-.mascot-row__mascot { width: clamp(120px, 14vw, 190px); }
+/* height: auto is required, not decorative — the intrinsic height attribute
+   on the img is a presentational hint and wins if CSS sets only width. */
+.mascot-row__mascot { width: clamp(120px, 14vw, 190px); height: auto; }
 
 .social {
   display: flex;
@@ -499,7 +501,7 @@ a   { color: inherit; text-decoration: none; }
     flex-wrap: nowrap;
   }
 
-  .mascot-row__mascot { width: 130px; }
+  .mascot-row__mascot { width: 130px; height: auto; }
 
   .social {
     display: grid;

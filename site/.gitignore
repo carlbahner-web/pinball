@@ -1,5 +1,6 @@
-# Not committed: the distress sheets for Tier-2 weathering, and the two brand
-# faces. The logo, MGMT lockup, BUZZ and the paper grain ARE committed, so the
-# page renders anywhere. fetch-assets.sh mirrors the rest.
-fonts/
+# The distress sheets for Tier-2 weathering are the only thing not committed.
+# Everything the page needs to render — artwork, the paper grain, and both
+# brand faces — is in the repo, so it runs from a bare clone with no fetch
+# step. The faces are the same files the live StudioLand site already serves
+# publicly at /fonts/, so committing them exposes nothing new.
 assets/plate-*.png

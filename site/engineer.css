@@ -101,7 +101,7 @@ body {
   letter-spacing: var(--body-track);
   color: var(--charcoal);
   background-color: var(--ground);
-  background-image: url("/assets/website-noise-3.webp");
+  background-image: url("assets/website-noise-3.webp");
   background-repeat: repeat;
   background-blend-mode: multiply;   /* multiply only — normal desaturates */
 }
@@ -193,7 +193,7 @@ svg.sl-boil rect.face {
    with no alpha. Give neighbouring panels different sheets so no two carry
    identical marks. */
 .card--weathered::before {
-  background-image: url("/assets/plate-01.png");
+  background-image: url("assets/plate-01.png");
   background-size: 100% 100%;
   background-repeat: no-repeat;
   background-blend-mode: multiply;
@@ -830,8 +830,8 @@ svg.sl-boil rect.face {
 
 @font-face {
   font-family: "DW Fairfield";
-  src: url("/fonts/dwfairfield-webfont.woff2") format("woff2"),
-       url("/fonts/dwfairfield-webfont.woff")  format("woff");
+  src: url("fonts/dwfairfield-webfont.woff2") format("woff2"),
+       url("fonts/dwfairfield-webfont.woff")  format("woff");
   font-weight: normal;
   font-style: normal;
   font-display: swap;
@@ -839,8 +839,8 @@ svg.sl-boil rect.face {
 
 @font-face {
   font-family: "TAY Wingman";
-  src: url("/fonts/TAYWingman.woff2") format("woff2"),
-       url("/fonts/TAYWingman.woff")  format("woff");
+  src: url("fonts/TAYWingman.woff2") format("woff2"),
+       url("fonts/TAYWingman.woff")  format("woff");
   font-weight: normal;
   font-style: normal;
   font-display: swap;

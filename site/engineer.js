@@ -197,22 +197,36 @@
     ink.arc(x + r, y + r, r, Math.PI, Math.PI * 1.5);
   }
 
+  /* Half an ellipse from pole to pole, bulging to w at the equator. Two of
+     them mirrored make the circle read as a sphere instead of a disc.
+     0.5523 is the standard cubic-bezier circle constant, applied per quarter
+     — one cubic for a whole half-ellipse visibly flattens at the poles. */
+  var GLOBE_R = 38;
+  function meridian(ink, w) {
+    var R = GLOBE_R, K = 0.5523;
+    ink.beginPath();
+    ink.moveTo(50, 50 - R);
+    ink.bezierCurveTo(50 + K * w, 50 - R, 50 + w, 50 - K * R, 50 + w, 50);
+    ink.bezierCurveTo(50 + w, 50 + K * R, 50 + K * w, 50 + R, 50, 50 + R);
+    ink.stroke();
+  }
+
   var MARKS = {
+    /* A globe, not a silo. The old mark was an arch closed off with a flat
+       bottom, which reads as a grain silo or a birdcage — the one thing it
+       didn't read as was a sphere. Circle, equator, one mirrored meridian
+       pair.
+
+       Equator and two meridians only. Adding the pair of parallels makes a
+       richer globe at desktop size and a dark blob at mobile size: measured
+       at 46px it takes ink coverage to 21.1%, against 14.6% for the other
+       two marks in the row, so it would read as the heavy one of the three.
+       This version sits at 18.0%. */
     website: function (ink, raw) {
-      ink.beginPath();
-      ink.moveTo(14, 86); ink.lineTo(14, 44);
-      ink.bezierCurveTo(14, 25, 30, 12, 50, 12);
-      ink.bezierCurveTo(70, 12, 86, 25, 86, 44);
-      ink.lineTo(86, 86); ink.lineTo(14, 86);
-      ink.stroke();
-      ink.beginPath(); ink.moveTo(14, 62); ink.lineTo(86, 62); ink.stroke();
-      ink.beginPath(); ink.moveTo(22, 40); ink.lineTo(78, 40); ink.stroke();
-      ink.beginPath();
-      ink.moveTo(50, 12); ink.bezierCurveTo(39, 24, 35, 42, 35, 54); ink.lineTo(35, 86);
-      ink.stroke();
-      ink.beginPath();
-      ink.moveTo(50, 12); ink.bezierCurveTo(61, 24, 65, 42, 65, 54); ink.lineTo(65, 86);
-      ink.stroke();
+      ink.beginPath(); ink.arc(50, 50, GLOBE_R, 0, Math.PI * 2); ink.stroke();
+      ink.beginPath(); ink.moveTo(50 - GLOBE_R, 50); ink.lineTo(50 + GLOBE_R, 50); ink.stroke();
+      meridian(ink,  19);
+      meridian(ink, -19);
     },
     instagram: function (ink, raw) {
       roundRect(ink, 16, 16, 68, 68, 20); ink.stroke();
@@ -225,12 +239,65 @@
     }
   };
 
-  // Trap 5: the emphasis dashes are a repeating set, so they take static wonk
-  // rather than boiling — a row of marks that all wobble reads as strobe.
+  /* ---- The emphasis rays ------------------------------------------------
+     Trap 5: these are a repeating set, so they take static wonk rather than
+     boiling — a row of marks that all wobble reads as strobe.
+
+     They used to be three hand-authored tables, and measured against each
+     other they did not agree on anything: 5 / 5 / 4 rays, angular gaps
+     running from 27 to 88 degrees, lengths from 11 to 14.2, four of them not
+     even pointing away from their own centre, and instagram alone throwing
+     two extra down at the bottom corners. Generated now, from one rule, so
+     every mark emanates identically — five rays, 30 degrees apart across a
+     120 degree arc, equal length, each standing the same clearance off its
+     own artwork.
+
+     Clearance off the SILHOUETTE rather than off a shared circle. A shared
+     circle has to clear the widest mark, and the envelope is wide and short:
+     it would float the top ray a long way above the flap while pressing the
+     outer two into the corners. Hugging each outline is what keeps the
+     spacing reading as deliberate. */
+  var RAY = { bearings: [-60, -30, 0, 30, 60], gap: 9, len: 13 };
+
+  /* Each silhouette as a rounded box — a circle is just a box whose corner
+     radius equals its half-size, so one expression covers all three. */
+  var HULL = {
+    website:   { hw: GLOBE_R, hh: GLOBE_R, cr: GLOBE_R },
+    instagram: { hw: 34, hh: 34, cr: 20 },
+    email:     { hw: 40, hh: 26, cr: 6 }
+  };
+
+  function sdRoundBox(px, py, h) {
+    var dx = Math.abs(px) - (h.hw - h.cr), dy = Math.abs(py) - (h.hh - h.cr);
+    return Math.hypot(Math.max(dx, 0), Math.max(dy, 0)) +
+           Math.min(Math.max(dx, dy), 0) - h.cr;
+  }
+
+  /* How far the outline reaches along a unit direction. Bisection, not a
+     closed form: the same six lines then serve circle, squircle and
+     rectangle, and it runs three times at startup rather than per frame. */
+  function hullReach(h, ux, uy) {
+    var lo = 0, hi = 200;
+    for (var i = 0; i < 40; i++) {
+      var mid = (lo + hi) / 2;
+      if (sdRoundBox(ux * mid, uy * mid, h) < 0) lo = mid; else hi = mid;
+    }
+    return lo;
+  }
+
+  function buildRays(kind) {
+    var h = HULL[kind];
+    return RAY.bearings.map(function (deg) {
+      var a = deg * Math.PI / 180, ux = Math.sin(a), uy = -Math.cos(a);
+      var r0 = hullReach(h, ux, uy) + RAY.gap, r1 = r0 + RAY.len;
+      return [50 + ux * r0, 50 + uy * r0, 50 + ux * r1, 50 + uy * r1];
+    });
+  }
+
   var RAYS = {
-    website:  [[-1, 24, -12, 15], [23, 3, 17, -9], [50, -6, 50, -17], [77, 3, 83, -9], [101, 24, 112, 15]],
-    instagram:[[4, 6, -5, -3], [50, -2, 50, -15], [96, 6, 105, -3], [4, 94, -5, 103], [96, 94, 105, 103]],
-    email:    [[0, 14, -9, 4], [28, 6, 24, -7], [72, 6, 76, -7], [100, 14, 109, 4]]
+    website:   buildRays('website'),
+    instagram: buildRays('instagram'),
+    email:     buildRays('email')
   };
 
   var marks = [];

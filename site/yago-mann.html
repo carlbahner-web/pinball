@@ -86,6 +86,30 @@
           <feMergeNode in="body" />
         </feMerge>
       </filter>
+
+      <!-- THE SEAM between the mustard page and the cream footer.
+
+           Its own filter because a long straight horizontal run is the
+           hardest case for this recipe. A panel edge is short and turns a
+           corner, so a small wobble reads; a seam runs the full width with
+           nothing to break it, and the eye has a perfect straight-edge
+           reference to compare against. Measured from rendered pixels, the
+           panels' scale of 7 moves this seam 1.5px peak to peak, which is a
+           straight line with a rough edge.
+
+           26 measures 5.3px peak to peak and 2.3px of travel per phase step,
+           which reads as torn. 16 (3.5px) still reads as a slightly wonky
+           straight line; 40 (8.2px) goes wavy, more bunting than tear.
+
+           baseFrequency stays at the recipe's 0.02. 0.012 lengthens the
+           waves into something softer and more scalloped, 0.03 gets busy —
+           both were rendered, neither was better. Amplitude was the dial
+           that needed turning, which is what 2.6 says it is for. -->
+      <filter id="slBoilSeam" x="-25%" y="-160%" width="155%" height="420%">
+        <feTurbulence class="sl-seed" type="fractalNoise" baseFrequency="0.02" numOctaves="1" seed="2" result="st" />
+        <feColorMatrix in="st" type="matrix" values="0.3 0 0 0 0.35  0 1 0 0 0  0 0 1 0 0  0 0 0 1 0" result="stb" />
+        <feDisplacementMap in="SourceGraphic" in2="stb" scale="26" xChannelSelector="R" yChannelSelector="G" />
+      </filter>
     </defs>
   </svg>
 
@@ -189,21 +213,33 @@
     </nav>
   </div>
 
-  <nav class="footer-nav" aria-label="Footer">
-    <div class="footer-nav__inner">
-      <div class="footer-nav__links">
+  <!-- One cream footer, not a stack of coloured bands. The boil lives in the
+       edge WHERE THE SECTIONS MEET: the rect below is cream, its top edge sits
+       exactly on the footer's top, and only that edge is ever seen against the
+       mustard. Its other three edges are either off-screen or cream-on-cream,
+       so the wobble reads as one torn tear-line across the page.
+
+       In the markup rather than injected by engineer.js, so the edge survives
+       with scripting off — it just holds still. -->
+  <footer class="site-footer">
+    <svg class="footer-edge" aria-hidden="true" focusable="false">
+      <g><rect /></g>
+    </svg>
+
+    <div class="site-footer__inner">
+      <nav class="site-footer__links" aria-label="Footer">
         <a href="/">Home</a>
         <a href="/contact">Contact</a>
-      </div>
-      <a class="footer-nav__logo" href="/" aria-label="STUDIOLAND MGMT home">
+      </nav>
+      <a class="site-footer__logo" href="/" aria-label="STUDIOLAND MGMT home">
         <img src="/assets/studioland-mgmt.webp" alt="STUDIOLAND MGMT"
              width="480" height="291" loading="lazy" decoding="async"
              onerror="this.onerror=null;this.src='/assets/studioland_mgmt_1.png'" />
       </a>
     </div>
-  </nav>
 
-  <div class="copyright">&copy;2026 Studioland MGMT</div>
+    <p class="site-footer__legal">&copy;2026 Studioland MGMT</p>
+  </footer>
 
   <script src="engineer.js"></script>
 </body>

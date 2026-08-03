@@ -20,8 +20,9 @@
   --ground:      var(--midway-mustard);  /* the page's textured ground */
   --ink:         var(--charcoal);        /* inked Box1 panels */
   --ink-on-dark: var(--cream);           /* type inside the panels */
-  --band-soft:   var(--foggy-mint);      /* footer nav band */
-  --band-deep:   var(--harbor-teal);     /* copyright bar */
+  /* The footer is one cream surface now, so nothing on this page uses a
+     coloured band. Foggy Mint and Harbor Teal stay in the palette above,
+     unused here — this page currently carries no teal at all. */
   --accent:      var(--midway-mustard);  /* the role line under the name */
 
   /* ---- Type — two fonts, that is the whole system (1.2) ----
@@ -505,12 +506,58 @@ svg.sl-boil rect.face {
   color: var(--ink);
 }
 
-.footer-nav {
-  background: var(--band-soft);
-  padding: 34px 32px;
+/* One cream footer. It used to be two flat bands — mint under the nav, teal
+   under the copyright — which is three grounds in the last 200px of the page
+   and reads as stacked stripes rather than as one surface. */
+.site-footer {
+  position: relative;
+  background: var(--cream);
+  color: var(--charcoal);
+  padding: 46px 32px 26px;
 }
 
-.footer-nav__inner {
+/* The boiling tear-line between the mustard page and the cream footer.
+
+   The rect is cream, and only its TOP edge is ever seen: that edge sits on
+   the footer's own top, so it wobbles across the boundary. Its bottom edge
+   lands 24px down, inside a footer that is already solid cream, so that
+   wobble is invisible. Its left and right run 30px past the viewport, so
+   theirs is off-screen. One visible edge out of four is the whole trick —
+   it is why this reads as a torn seam and not as a floating cream card.
+
+   The height only has to cover the top edge plus the boil's reach; it is not
+   the footer's background. Growing it would gain nothing and cost filter
+   area on every frame. */
+.footer-edge {
+  position: absolute;
+  left: -30px;
+  width: calc(100% + 60px);
+  top: -20px;
+  height: 44px;
+  overflow: visible;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* #slBoilSeam, not #slBoil — a full-width horizontal run needs far more
+   amplitude than a panel edge to read as torn at all. See the filter. */
+.footer-edge g { filter: url(#slBoilSeam); }
+
+.footer-edge rect {
+  x: 0;
+  y: 20px;
+  width: 100%;
+  height: 24px;
+  fill: var(--cream);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .footer-edge g { filter: none; }
+}
+
+.site-footer > *:not(.footer-edge) { position: relative; z-index: 1; }
+
+.site-footer__inner {
   max-width: var(--page-max);
   margin: 0 auto;
   display: flex;
@@ -519,7 +566,7 @@ svg.sl-boil rect.face {
   gap: 24px;
 }
 
-.footer-nav__links {
+.site-footer__links {
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -529,18 +576,20 @@ svg.sl-boil rect.face {
   text-transform: uppercase;
 }
 
-.footer-nav__links a:hover { opacity: 0.65; }
-.footer-nav__logo img { height: clamp(54px, 6vw, 82px); width: auto; }
+.site-footer__links a:hover { opacity: 0.65; }
+.site-footer__logo img { height: clamp(54px, 6vw, 82px); width: auto; }
 
-.copyright {
-  background: var(--band-deep);
-  color: var(--cream);
+/* No longer its own coloured bar — it sits on the same cream as the nav and
+   steps back on weight instead of on ground. */
+.site-footer__legal {
+  max-width: var(--page-max);
+  margin: 34px auto 0;
   text-align: center;
-  padding: 16px;
   font-family: var(--font-display);
   font-size: 14px;
   letter-spacing: 0.06em;
   text-transform: uppercase;
+  opacity: 0.55;
 }
 
 /* ==========================================================================
@@ -677,8 +726,9 @@ svg.sl-boil rect.face {
 
   .social canvas.mark { width: 60px; }
 
-  .footer-nav { padding: 26px 24px; }
-  .footer-nav__links { font-size: 21px; }
+  .site-footer { padding: 34px 24px 20px; }
+  .site-footer__links { font-size: 21px; }
+  .site-footer__legal { margin-top: 26px; }
 }
 
 /* A landscape phone is wide AND short: it clears no width breakpoint but has
@@ -697,7 +747,8 @@ svg.sl-boil rect.face {
      has. Width is not scarce — three marks plus gaps come to 228px of the
      796px available. */
   .social { grid-template-columns: repeat(3, auto); gap: clamp(16px, 3vw, 34px); }
-  .footer-nav { padding: 18px 24px; }
+  .site-footer { padding: 26px 24px 16px; }
+  .site-footer__legal { margin-top: 20px; }
   .name-block { padding-top: 22px; padding-bottom: 22px; }
 }
 

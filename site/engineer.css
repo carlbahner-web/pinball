@@ -34,7 +34,14 @@
                   "Avenir Next", "Segoe UI", system-ui, sans-serif;
 
   --display-track: 0.02em;   /* letter-spacing on headings */
-  --body-track:    0;         /* TAY Wingman is already wide — no extra */
+  /* TAY Wingman sets loose by design — its zero is 0.78em against a typical
+     0.5em — so body copy is pulled IN rather than tracked out. -0.03em starts
+     to crowd; -0.02 tightens visibly with no collisions. */
+  --body-track:    -0.02em;
+  /* 17px, not 15. This face's x-height is 0.47 of its size against system-ui's
+     0.56, so it renders about 20% smaller than the number suggests: 15px reads
+     like 13px system text, and the old sub-420px 14px override read like 12px. */
+  --body-size:     17px;
 
   /* ---- Layout ---- */
   --page-max:   1280px;   /* max content width */
@@ -340,8 +347,8 @@ svg.sl-boil rect.face {
 .bio-body p {
   margin: 0 0 1.15em;
   max-width: var(--measure);
-  font-size: 15px;
-  line-height: 1.75;
+  font-size: var(--body-size);
+  line-height: 1.7;
 }
 
 .bio-body p:last-child { margin-bottom: 0; }
@@ -385,7 +392,7 @@ svg.sl-boil rect.face {
 
 .qa dt {
   max-width: var(--measure);
-  font-size: 15px;
+  font-size: var(--body-size);
   line-height: 1.6;
   margin-bottom: 1.1em;
 }
@@ -393,8 +400,8 @@ svg.sl-boil rect.face {
 .qa dd {
   margin: 0 0 1.9em;
   max-width: var(--measure);
-  font-size: 15px;
-  line-height: 1.75;
+  font-size: var(--body-size);
+  line-height: 1.7;
 }
 
 .qa dd:last-child { margin-bottom: 0; }
@@ -656,7 +663,6 @@ svg.sl-boil rect.face {
 
 @media (max-width: 420px) {
   .name-block h1 { font-size: 32px; }
-  .bio-body p, .qa dt, .qa dd { font-size: 14px; }
 }
 
 /* Respect reduced motion / reduced transparency users */

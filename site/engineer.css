@@ -526,11 +526,18 @@ svg.sl-boil rect.face {
     font-size: 19px;
   }
 
-  .page { padding: 0 0 30px; }
+  /* Panels stay four-sided cards here, as on desktop: the inked edge is the
+     brand, and full-bleed bands only ever show two of its four sides — the
+     boil's wobble on the left and right runs off-screen entirely.
+
+     The top padding is not decorative. Each shape bleeds --cel-y past its
+     element plus the displacement, so with none the first card's edge crosses
+     up into the header. */
+  .page { padding: 20px 16px 30px; }
 
   .grid {
     grid-template-columns: 1fr;
-    gap: 0;
+    gap: 20px;
   }
 
   /* Dissolve the desktop bio card so its two halves can be reordered.
@@ -593,7 +600,7 @@ svg.sl-boil rect.face {
   .name-block,
   .bio-body,
   .qa-card,
-  .spotify-card { --cel-x: 20px; }
+  .spotify-card { --cel-x: 7px; }
 
   .has-boil .name-block::before,
   .has-boil .bio-body::before,
@@ -607,9 +614,11 @@ svg.sl-boil rect.face {
   .photo-card { padding: clamp(20px, 5vw, 30px) clamp(18px, 5vw, 24px); }
   .photo-card::before { inset: 24px 18px; border-radius: 14px; }
 
-  .bio-body   { margin-top: 0; }
-  .spotify-card { margin-top: 34px; }
-  .qa-card      { margin-top: 34px; }
+  /* one gap, set by the grid — the old per-panel margins gave 0px between the
+     first three and 34px between the rest, so three panels read as one */
+  .bio-body,
+  .spotify-card,
+  .qa-card { margin-top: 0; }
 
 
 
@@ -637,9 +646,8 @@ svg.sl-boil rect.face {
    a third of the height. Width-only rules hand it a layout meant for a tall
    narrow screen, so trim the vertical rhythm where height is the scarce axis. */
 @media (max-height: 520px) and (min-width: 480px) {
-  .page { padding-bottom: 20px; }
-  .spotify-card { margin-top: 20px; }
-  .qa-card { margin-top: 20px; }
+  .page { padding-top: 14px; padding-bottom: 20px; }
+  .grid { gap: 14px; }
   .mascot-row { padding: 24px 24px 28px; gap: 20px; }
   .mascot-row__mascot { width: clamp(90px, 10vw, 130px); }
   .footer-nav { padding: 18px 24px; }

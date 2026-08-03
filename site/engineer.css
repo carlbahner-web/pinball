@@ -52,8 +52,8 @@
   --cel-y:      7px;      /* can run wide without the contour losing its size */
   --cel-on:     1;        /* 0 skips drawing a contour for that element */
   --cel-radius: 26;       /* corner radius of the drawn contour, in px */
-  --cel-amp:    6;        /* how far the ink wanders off true, in px */
-  --cel-wave:   130;      /* distance between wobbles, in px — this is what
+  --cel-amp:    3;        /* how far the ink wanders off true, in px */
+  --cel-wave:   65;       /* distance between wobbles, in px — this is what
                              keeps the ink reading the same size on a tall
                              card and on the little logo chip */
 }
@@ -204,8 +204,8 @@ svg.cel path { fill: var(--ink); }
   display: inline-block;
   padding: 10px 18px;
   --cel-radius: 10;
-  --cel-amp: 3;
-  --cel-wave: 60;
+  --cel-amp: 1.5;
+  --cel-wave: 30;
   --cel-x: 0px;
   --cel-y: 0px;
 }

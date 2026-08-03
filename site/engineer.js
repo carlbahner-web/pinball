@@ -144,8 +144,14 @@
     var radius = parseFloat(cs.getPropertyValue('--cel-radius')) || 26;
     var amp = parseFloat(cs.getPropertyValue('--cel-amp')) || 6;
     var wave = parseFloat(cs.getPropertyValue('--cel-wave')) || 130;
-    panel.d = noises.map(function (n) { return celPath(w, h, radius, amp, wave, n); });
-    panel.path.setAttribute('d', panel.d[panel.phase || 0]);
+    // Each cel is its own <path>, drawn once. Swapping which one is visible
+    // beats rewriting a `d` attribute every frame: at these wavelengths a
+    // contour is ~20KB of path data, and re-parsing that twelve hundred times
+    // a minute is real work for no reason.
+    for (var i = 0; i < CELS; i++) {
+      panel.paths[i].setAttribute('d', celPath(w, h, radius, amp, wave, noises[i]));
+      panel.paths[i].style.display = (i === (panel.phase || 0)) ? '' : 'none';
+    }
   }
 
   function attach(el) {
@@ -153,10 +159,15 @@
     svg.setAttribute('class', 'cel');
     svg.setAttribute('aria-hidden', 'true');
     svg.setAttribute('preserveAspectRatio', 'none');
-    var path = document.createElementNS(NS, 'path');
-    svg.appendChild(path);
+    var paths = [];
+    for (var i = 0; i < CELS; i++) {
+      var path = document.createElementNS(NS, 'path');
+      if (i) path.style.display = 'none';
+      svg.appendChild(path);
+      paths.push(path);
+    }
     el.insertBefore(svg, el.firstChild);
-    var panel = { el: el, svg: svg, path: path, phase: 0, w: 0, h: 0, d: [] };
+    var panel = { el: el, svg: svg, paths: paths, phase: 0, w: 0, h: 0 };
     panels.push(panel);
     build(panel);
   }
@@ -206,7 +217,9 @@
         phase = (phase + 1) % CELS;
         for (var i = 0; i < panels.length; i++) {
           var p = panels[i];
-          if (p.d.length) { p.phase = phase; p.path.setAttribute('d', p.d[phase]); }
+          p.paths[p.phase].style.display = 'none';
+          p.paths[phase].style.display = '';
+          p.phase = phase;
         }
       }
       if (!document.hidden) requestAnimationFrame(tick);

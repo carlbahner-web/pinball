@@ -351,17 +351,21 @@ svg.sl-boil rect.face {
 .photo-card { --card-pad: clamp(10px, 1.4vw, 16px); }
 
 /* The one element that was never bounded by height. Sized off width alone it
-   hits 2.96 screens on a landscape phone and a full screen on a laptop, so it
-   takes a viewport-relative ceiling and crops instead of growing. object-fit
-   keeps the subject centred; what's lost is street at the top and pavement at
-   the bottom. */
+   hits 2.96 screens on a landscape phone and a full screen on a laptop.
+
+   It scales down rather than cropping: both max-width and max-height are set
+   with auto dimensions, so the browser fits the image inside both while
+   keeping its ratio. The whole frame survives — the street at the top and the
+   graffiti at the bottom are doing real work — and on a short screen the
+   photo just gets smaller, centred, with the panel around it reading as a
+   mount. Cropping was the alternative and it cost the composition. */
 .photo-card img {
-  width: 100%;
+  width: auto;
+  max-width: 100%;
   height: auto;
-  max-height: clamp(260px, 62vh, 900px);
-  object-fit: cover;
-  object-position: 50% 16%;   /* his face sits in the top third; the window
-                                 has to sit high or the crop takes his head */
+  max-height: 72vh;   /* the card adds its own padding; 72 keeps the whole
+                         panel inside one screen */
+  margin-inline: auto;
 }
 
 /* ---- Q&A ---- */

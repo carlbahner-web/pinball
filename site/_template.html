@@ -185,16 +185,30 @@
     </div>
   </main>
 
-  <!-- The two below-the-fold images load eagerly by choice, not by
-       measurement: with loading="lazy" they are measurably faster on a slow
-       link (median of 3 on Fast 3G at 4x CPU: FCP 1320 vs 1820ms, LCP 2324 vs
-       3328ms), because 112KB of mascot and lockup otherwise compete with the
-       hero photo. On 4G the two are within noise. Eager wins on certainty
-       instead: the artwork is always there the moment it is scrolled to. Put
-       loading="lazy" back on these two if slow-link load matters more. -->
+  <!-- loading="lazy" is ON here by request, and the measurement disagrees with
+       it. Recording that honestly because the number I gave earlier was wrong.
+
+       Fast 3G at 4x CPU, 7 interleaved runs each, ranges not overlapping:
+
+         FCP   lazy 1676-1876 (median 1832)   eager 1512-1696 (median 1596)
+         LCP   lazy 3124-3332 (median 3168)   eager 2812-2904 (median 2824)
+
+       So eager is about 240ms faster to first paint and 340ms to the hero
+       photo. An earlier three-run measurement said the reverse; three runs
+       could not separate a ~300ms effect from ~200ms of run-to-run spread,
+       and I reported it as fact anyway.
+
+       The mechanism fits eager winning: loading="lazy" hides an image from
+       the preload scanner, so it is not queued during the initial parse.
+       Chrome then widens its lazy threshold on a slow link and fetches it
+       anyway — later, and without the priority it would have been given as a
+       known low-priority below-fold image. On a 450KB page, deferring 112KB
+       is not worth losing the scheduler.
+
+       Delete both loading="lazy" attributes to go back to eager. -->
   <div class="mascot-row">
     <img class="mascot-row__mascot" src="assets/buzz-mascot.webp" alt="" aria-hidden="true"
-         width="600" height="600" decoding="async"
+         width="600" height="600" loading="lazy" decoding="async"
          onerror="this.onerror=null;this.src='/assets/Buzz%20The%20Mascot5.png'" />
 
     <nav class="social" aria-label="ENGINEER NAME elsewhere">
@@ -232,7 +246,7 @@
       </nav>
       <a class="site-footer__logo" href="/" aria-label="STUDIOLAND MGMT home">
         <img src="assets/studioland-mgmt.webp" alt="STUDIOLAND MGMT"
-             width="480" height="291" decoding="async"
+             width="480" height="291" loading="lazy" decoding="async"
              onerror="this.onerror=null;this.src='/assets/studioland_mgmt_1.png'" />
       </a>
     </div>

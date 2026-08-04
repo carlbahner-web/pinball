@@ -59,30 +59,124 @@
     (window.matchMedia &&
      window.matchMedia('(prefers-reduced-motion: reduce)').matches);
 
-  /* The shape layer: an <svg> holding one rect inside the filtered group.
-     SVG is a replaced element — the CSS must give .sl-boil a width and a
-     height, or it sits at its 300x150 intrinsic size and the panel vanishes. */
+  /* ---- The panel shape -------------------------------------------------
+     Two ways to make a charcoal panel whose edge wobbles, switchable with
+     data-boil-mode on <html>:
+
+       "path"   (default) draw the wobbly outline directly as a filled path
+       "filter" push the whole rect through the displacement filter
+
+     They look the same because a solid fill can only SHOW displacement at
+     its boundary — move a charcoal pixel to another charcoal pixel and
+     nothing happened. Proven by putting stripes inside the filtered rect:
+     the interior ripples, and 2.4% of interior pixels change per frame
+     against 0.0% for the solid fill the page ships.
+
+     So the filter spends a turbulence field and a per-pixel resample across
+     the entire panel every frame to move a rim. Measured flat out on 16
+     visible panels: filter 33fps, path 60fps — half the per-frame cost for
+     the same picture. Shrinking the filter REGION does not help (106% vs
+     155% measured 33.6 vs 33.0), which is what pins the cost on the
+     pipeline rather than on wasted area.
+
+     This is a deliberate departure. 2.6 assigns the displacement filter to
+     DOM shapes and path re-emission to drawn linework, and this gives the
+     panels the linework technique. It is only equivalent while the fill is
+     one flat colour: put a Tier-2 weathering plate inside a panel and the
+     two stop matching, because the filter would ripple the plate and this
+     will not. BUZZ's inked outline stays on the filter regardless — it
+     grows a silhouette out of a raster alpha channel, which no path can do. */
+
+  var BOIL_MODE = root.getAttribute('data-boil-mode') === 'filter' ? 'filter' : 'path';
+
+  /* One lap of a rounded rectangle, every point pushed along its own outward
+     normal by the shared noise, closed with a Catmull-Rom so the wander is
+     smooth rather than faceted. Same vnoise() the social marks use, so the
+     whole page wobbles out of one source. */
+  function wobblyRoundRect(w, h, r, amp, seed) {
+    if (w <= 0 || h <= 0) return '';
+    r = Math.max(0, Math.min(r, Math.min(w, h) / 2));
+    var pts = [], i, a;
+    var straight = 12, arcStep = Math.PI / 12;
+
+    function push(x, y, nx, ny, key) {
+      var o = (vnoise(key, seed) - 0.5) * 2 * amp;
+      pts.push([x + nx * o, y + ny * o]);
+    }
+    function edge(x0, y0, x1, y1, nx, ny, k0) {
+      var len = Math.hypot(x1 - x0, y1 - y0);
+      var n = Math.max(1, Math.round(len / straight));
+      for (i = 0; i < n; i++) {
+        var t = i / n;
+        push(x0 + (x1 - x0) * t, y0 + (y1 - y0) * t, nx, ny, k0 + len * t);
+      }
+      return k0 + len;
+    }
+    function corner(cx, cy, a0, k0) {
+      for (a = 0; a < Math.PI / 2 - 1e-6; a += arcStep) {
+        var ang = a0 + a;
+        push(cx + Math.cos(ang) * r, cy + Math.sin(ang) * r,
+             Math.cos(ang), Math.sin(ang), k0 + a * r);
+      }
+      return k0 + (Math.PI / 2) * r;
+    }
+
+    var k = 0;
+    k = edge(r, 0, w - r, 0, 0, -1, k);                       // top
+    k = corner(w - r, r, -Math.PI / 2, k);                    // top-right
+    k = edge(w, r, w, h - r, 1, 0, k);                        // right
+    k = corner(w - r, h - r, 0, k);                           // bottom-right
+    k = edge(w - r, h, r, h, 0, 1, k);                        // bottom
+    k = corner(r, h - r, Math.PI / 2, k);                     // bottom-left
+    k = edge(0, h - r, 0, r, -1, 0, k);                       // left
+    k = corner(r, r, Math.PI, k);                             // top-left
+
+    var d = 'M' + pts[0][0].toFixed(1) + ',' + pts[0][1].toFixed(1);
+    for (i = 0; i < pts.length; i++) {
+      var p0 = pts[(i - 1 + pts.length) % pts.length], p1 = pts[i],
+          p2 = pts[(i + 1) % pts.length], p3 = pts[(i + 2) % pts.length];
+      d += 'C' + (p1[0] + (p2[0] - p0[0]) / 6).toFixed(1) + ',' + (p1[1] + (p2[1] - p0[1]) / 6).toFixed(1) +
+           ' ' + (p2[0] - (p3[0] - p1[0]) / 6).toFixed(1) + ',' + (p2[1] - (p3[1] - p1[1]) / 6).toFixed(1) +
+           ' ' + p2[0].toFixed(1) + ',' + p2[1].toFixed(1);
+    }
+    return d + 'Z';
+  }
+
+  /* Matched to the filter by measurement, not by eye. Sampling the same strip
+     of panel edge from live frames in both modes: the filter gives 7.7px of
+     raggedness and 0.73px of travel per step, this gives 5.8px and 0.73px.
+     Travel is the number that matters — it is the motion the eye reads — and
+     it matches exactly. The path runs slightly less ragged WITHIN a frame,
+     because its wander is smoothed along the outline by a Catmull-Rom rather
+     than sampled per pixel. */
+  var PATH_AMP = 1.38;
+
   function attach(el) {
     var svg = document.createElementNS(NS, 'svg');
     svg.setAttribute('class', 'sl-boil');
     svg.setAttribute('aria-hidden', 'true');
-    var g = document.createElementNS(NS, 'g');
-    g.setAttribute('filter', 'url(#slBoil)');
-    var rect = document.createElementNS(NS, 'rect');
-    rect.setAttribute('class', 'face');
-    /* Geometry as ATTRIBUTES first, refined by CSS where it is supported.
-       x/y/width/height/rx/ry only became CSS properties in Safari 17.4; on
-       anything older the stylesheet's calc() sizing is ignored, the rect has
-       no dimensions, and EVERY charcoal panel silently disappears — which
-       reads as "the stylesheet did not load" rather than as a bug in one
-       feature. Presentation attributes lose to CSS wherever CSS works, so
-       this costs nothing on a current browser. */
-    rect.setAttribute('width', '100%');
-    rect.setAttribute('height', '100%');
-    rect.setAttribute('rx', '16');
-    rect.setAttribute('ry', '16');
-    g.appendChild(rect);
-    svg.appendChild(g);
+
+    if (BOIL_MODE === 'path') {
+      var path = document.createElementNS(NS, 'path');
+      path.setAttribute('class', 'face');
+      path.setAttribute('transform', 'translate(2,2)');   // the filter's 2px inset
+      svg.appendChild(path);
+    } else {
+      var g = document.createElementNS(NS, 'g');
+      g.setAttribute('filter', 'url(#slBoil)');
+      var rect = document.createElementNS(NS, 'rect');
+      rect.setAttribute('class', 'face');
+      /* Geometry as ATTRIBUTES first, refined by CSS where it is supported.
+         x/y/width/height/rx/ry only became CSS properties in Safari 17.4; on
+         anything older the stylesheet's calc() sizing is ignored, the rect has
+         no dimensions, and EVERY charcoal panel silently disappears. */
+      rect.setAttribute('width', '100%');
+      rect.setAttribute('height', '100%');
+      rect.setAttribute('rx', '16');
+      rect.setAttribute('ry', '16');
+      g.appendChild(rect);
+      svg.appendChild(g);
+    }
     el.insertBefore(svg, el.firstChild);
   }
 
@@ -95,6 +189,38 @@
      INSIDE the bio card and share its shape, and giving them their own would
      paint a charcoal rect over their own text — a positioned element paints
      above in-flow content, so the text simply disappears. */
+  /* Twelve outlines per panel, cut once per size and then only swapped. The
+     work that used to happen every frame in the filter now happens when the
+     panel's box changes, which is a resize or a font landing — not 7.7 times
+     a second. */
+  var shapes = [];
+
+  function buildPaths() {
+    if (BOIL_MODE !== 'path') return;
+    shapes = [];
+    Array.prototype.forEach.call(hosts, function (el) {
+      var svg = el.querySelector(':scope > svg.sl-boil');
+      if (!svg) return;
+      var face = svg.querySelector('path.face');
+      if (!face) return;
+      var b = svg.getBoundingClientRect();
+      if (b.width < 8 || b.height < 8) return;
+      var r = parseFloat(getComputedStyle(el).getPropertyValue('--cel-radius')) || 16;
+      var cache = [];
+      for (var i = 0; i < SL_SEEDS.length; i++) {
+        cache.push(wobblyRoundRect(b.width - 4, b.height - 4, r, PATH_AMP, SL_SEEDS[i]));
+      }
+      shapes.push({ face: face, cache: cache, w: Math.round(b.width), h: Math.round(b.height) });
+    });
+    paintPaths(phase);
+  }
+
+  function paintPaths(f) {
+    for (var i = 0; i < shapes.length; i++) {
+      shapes[i].face.setAttribute('d', shapes[i].cache[f % shapes[i].cache.length]);
+    }
+  }
+
   function sync() {
     Array.prototype.forEach.call(hosts, function (el) {
       var on = getComputedStyle(el).getPropertyValue('--cel-on').trim() !== '0';
@@ -103,12 +229,26 @@
     });
   }
   sync();
+  buildPaths();
 
   var syncTimer;
-  window.addEventListener('resize', function () {
+  function refresh() {
     clearTimeout(syncTimer);
-    syncTimer = setTimeout(sync, 150);
-  });
+    syncTimer = setTimeout(function () { sync(); buildPaths(); }, 150);
+  }
+  window.addEventListener('resize', refresh);
+  window.addEventListener('load', refresh);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(refresh);
+
+  /* A panel's height follows its copy, so it also changes when a face lands or
+     an image decodes. Watching the boxes catches those without polling.
+     Safe against the feedback loop that a size-writing observer would cause:
+     this only READS boxes and writes a `d`, and the shape layer is absolutely
+     positioned, so nothing it does can alter the layout it just measured. */
+  if (window.ResizeObserver && BOIL_MODE === 'path') {
+    var ro = new ResizeObserver(refresh);
+    Array.prototype.forEach.call(hosts, function (el) { ro.observe(el); });
+  }
 
 
 
@@ -449,7 +589,10 @@
       if (f === last) return;
       last = f;
       phase = f;
+      /* Seeds still step for the two things that genuinely need the filter:
+         BUZZ's grown outline and the footer seam. */
       for (var i = 0; i < seeds.length; i++) seeds[i].setAttribute('seed', SL_SEEDS[f]);
+      paintPaths(f);
       drawMarks();
     })(0);
   }

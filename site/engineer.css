@@ -165,6 +165,10 @@ svg.sl-boil {
   pointer-events: none;
 }
 
+/* In path mode the outline IS the panel — the wobble is in the geometry, so
+   there is nothing to filter. */
+svg.sl-boil path.face { fill: var(--ink); }
+
 /* The rect IS the panel: its displaced fill edge is the border. Inset by half
    a stroke so the edge has room to wander without clipping. */
 svg.sl-boil rect.face {

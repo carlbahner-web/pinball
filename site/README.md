@@ -1,21 +1,33 @@
 # STUDIOLAND MGMT — engineer profile pages
 
-The Showit engineer page rebuilt as plain HTML/CSS/JS. No build step, no
-framework — open the file in a browser and it works.
+The Showit engineer page rebuilt as plain HTML/CSS/JS. One HTML page, one
+stylesheet, one script — nothing to install to *view* it. The pages themselves
+are generated from a template plus a JSON of copy; see **Add a new engineer**.
 
 Built against **SL_REF_Visual_Brand_Bible_v3**; the section numbers below point
 back at it.
 
 ```
 site/
-  yago-mann.html      Yago's page (the one in the mockups)
-  _template.html      copy this to start a new engineer
+  engineers/
+    yago-mann.json         one engineer's copy, plain prose
+    _new-engineer.json     copy this to start a new one
+  _template.html           the markup, with {{TOKEN}} holes. Edit this, not the pages.
+  build-page.py            engineers/*.json + _template.html → <slug>.html
+  build-standalone.py      <slug>.html → <slug>.standalone.html (everything inlined)
+
+  yago-mann.html           GENERATED. Do not hand-edit.
+  yago-mann.standalone.html  GENERATED. One self-contained file, ~450KB.
+
   engineer.css        every style; canonical palette + tokens at the top
   engineer.js         the boil, mobile menu, Spotify embed
   fetch-assets.sh     mirrors the live brand assets here for offline work
+  fonts/
+    dwfairfield-webfont.woff2   display face
+    TAYWingman.woff2 + .woff    body face
   assets/
-    studioland_mgmt_1.png   the MGMT lockup (dark build)
-    Buzz The Mascot5.png    BUZZ
+    studioland-mgmt.webp    the MGMT lockup (dark build)
+    buzz-mascot.webp        BUZZ
     website-noise-3.webp    the paper grain, flattened onto white
     logo.png                the plain wordmark (cream build)
     yago-mann.webp          Yago's photo
@@ -32,10 +44,11 @@ python3 -m http.server 8000
 # → http://localhost:8000/yago-mann.html
 ```
 
-**Serve `site/` as the web root.** Asset paths are root-relative (`/assets/…`,
-`/fonts/…`) so they match the live site, which means the folder you serve has
-to be the root. Don't open it over `file://` either — the SVG filter behind
-the inked panels needs a real origin.
+Asset paths are **relative** (`assets/…`, `fonts/…`), so `site/` can be served
+from any prefix — a subfolder, a raw-file proxy, a Pages site. Don't open it
+over `file://` though: the SVG filter behind the inked panels needs a real
+origin. If you need something that survives `file://` and Dropbox and every
+other place that disagrees about what "/" means, use the `.standalone.html`.
 
 ## How assets resolve
 
@@ -45,12 +58,16 @@ nothing to copy:
 
 | Path | What | In the repo? |
 |---|---|---|
-| `/assets/studioland_mgmt_1.png` | the MGMT lockup, header + footer | yes |
-| `/assets/Buzz%20The%20Mascot5.png` | BUZZ in the footer | yes |
-| `/assets/logo.png` | the plain wordmark, used as the lockup's fallback | yes |
-| `/assets/website-noise-3.webp` | the paper grain (`website-noise.webp` / `-2` are the other cuts) | yes, flattened |
-| `/fonts/dwfairfield-webfont.woff2` + `.woff` | display face | no |
-| `/fonts/TAYWingman.woff2` + `.woff` | body face | no |
+| `assets/studioland-mgmt.webp` | the MGMT lockup, header + footer | yes |
+| `assets/buzz-mascot.webp` | BUZZ in the footer | yes |
+| `assets/logo.png` | the plain wordmark, used as the lockup's fallback | yes |
+| `assets/website-noise-3.webp` | the paper grain (`website-noise.webp` / `-2` are the other cuts) | yes, flattened |
+| `fonts/dwfairfield-webfont.woff2` | display face | yes |
+| `fonts/TAYWingman.woff2` + `.woff` | body face | yes |
+
+The PNG originals (`studioland_mgmt_1.png`, `Buzz The Mascot5.png`) are still
+here; the pages point at the WebP re-encodes, which is most of why the page
+went from 1371KB to ~450KB.
 
 Every image carries an `onerror` fallback, so a missing file degrades to
 something sensible instead of a broken icon.
@@ -71,25 +88,57 @@ font requests need a CORS header on them. Same origin, no issue.
 
 ## Add a new engineer
 
-1. `cp _template.html firstname-lastname.html`
-2. Upload their photo to the site and point the `<img src>` at it. The
-   existing engineer photos follow `firstname-lastname.webp`
-   (`nick-nagurka.webp`, `tim-howarth.webp`…), so the template ships as
-   `/assets/ENGINEER-SLUG.webp`.
-3. Fill in name, role, four bio paragraphs, four Q&A pairs.
-4. Paste their Spotify playlist ID into `data-playlist` on the
-   `.spotify-embed` div — it's the chunk after `/playlist/` in the share URL.
-   Left empty, the card shows a dashed "add a playlist" placeholder instead
-   of a broken iframe.
-5. Point the three social links at their real URLs.
-6. Leave the boil alone. The seeds `[2, 9, 15]` are part of the published
-   recipe, not a per-page flourish — every StudioLand surface steps through
-   the same three, which is what makes them look like one world.
+```bash
+cd site
+cp engineers/_new-engineer.json engineers/firstname-lastname.json
+#  … fill it in, drop their photo in assets/ …
+python3 build-page.py engineers/firstname-lastname.json
+```
+
+That writes `firstname-lastname.html` **and** `firstname-lastname.standalone.html`.
+Rebuild everything with `python3 build-page.py engineers/*.json`.
+
+What goes in the JSON:
+
+| Field | |
+|---|---|
+| `slug` | the file name, no extension |
+| `name`, `first_name`, `role` | `first_name` only feeds the questions heading |
+| `photo` | path relative to `site/`. Existing photos follow `assets/firstname-lastname.webp` |
+| `photo_alt` | what is happening in the picture, for anyone who can't see it |
+| `bio` | a list of paragraphs |
+| `questions` | a list of `{q, a}`. **Don't number them** — the numbering and the "in four questions" heading are generated from the count |
+| `spotify_playlist` | the chunk after `/playlist/` in the share URL. Left `""`, the card shows a dashed "add a playlist" placeholder instead of a broken iframe |
+| `website`, `instagram`, `email` | |
+
+Write the copy as **plain prose**. Escaping, curly quotes, en dashes and
+ellipses are applied at build time, so the JSON stays readable and you never
+hand-type an entity. The build refuses to run on a missing required field, a
+photo that isn't there, or a `{{TOKEN}}` nothing filled — it fails loudly
+rather than shipping a page with a hole in it.
+
+**The `.html` files are outputs.** They used to be hand-kept copies of the
+template and they drifted apart on nearly every change — a fix would land in
+one and be forgotten in the other. Edit `_template.html` or the JSON and
+rebuild; anything typed into a generated page disappears at the next build.
+
+The photo's `width`/`height` attributes are read from the file, never guessed:
+they're the browser's aspect-ratio hint, so a wrong pair makes the page jump
+while the image loads. Rasters need Pillow (`pip install pillow`); SVGs are
+read from the `viewBox`.
+
+Leave the boil alone. The seeds are part of the published recipe, not a
+per-page flourish — every StudioLand surface steps through the same list,
+which is what makes them look like one world.
 
 ## Still owed
 
-- **`TAYWingman.woff2`.** Only the `.woff` exists, so body text loads at
-  roughly 30% more weight than it needs to.
+- **Somewhere to host it.** Nothing is deployed. The folder is ready to serve
+  from any prefix, but no host, no deploy config, no Pages setting exists yet.
+- **Eyes on the Spotify embed.** `open.spotify.com` is blocked from the
+  sandbox this was built in, so the player has never actually been *seen*
+  rendering. Everything around it — the placeholder when `data-playlist` is
+  empty, the sizing, the lazy iframe — is verified; the iframe itself isn't.
 - **A distress sheet.** This is the one place the page doesn't meet a v3
   Don't: the panels are colored fields carrying no texture. Tier-1 grain
   can't fix it — measured on charcoal it lands at 0.36 stddev against 2.25 on
@@ -104,10 +153,16 @@ font requests need a CORS header on them. Same origin, no issue.
   stroke and an offset shadow is a handful of lines; it's a design change, so
   it's yours to call.
 - **`boil-canvas.html`, if the social marks should boil.** They're drawn
-  linework, so they'd need the path-re-emission boil, not the filter — and
-  v3 forbids reimplementing either from prose. The file would have to come
-  across; its numbers (lattice 46 design units, phase offset +7.31, the
-  amplitude registry) aren't enough to work from without it.
+  linework, so they'd need the canonical path-re-emission boil. What's in
+  `engineer.js` is a local approximation of that mechanism (value noise along
+  the outward normal, Catmull-Rom closed), written for the panels — not the
+  published recipe, whose numbers (lattice 46 design units, phase offset
+  +7.31, the amplitude registry) aren't reconstructable from prose. If the
+  marks are ever meant to move, that file has to come across first.
+- **A cheaper footer.** The social marks are the biggest thing left on the
+  per-frame bill — 3.8% of one core on a 4×-throttled phone, redrawn on
+  canvas every step. Twelve pre-rendered bitmaps per mark would take it to
+  roughly nothing. Not done because nobody has complained about the footer.
 - **The DW Fairfield Narrow cut** isn't among the webfonts — only the regular
   is wired. Nothing here needs Narrow, but that's why it's absent from the
   stack.
@@ -151,32 +206,49 @@ never cropped-and-tiled, never scaled at paint time.
 **Box1 (2.3).** Every dark panel is a Box1, its edge painted by the boil's
 displaced shape. On mobile they go full-bleed as bands.
 
-**The boil (2.6).** There are two boils and they are not interchangeable —
-the SVG displacement filter for DOM shapes, path re-emission for drawn
-linework. This page is buttons, cards and panels, so it takes the DOM one:
-`design-system/components/boil.html`, copied verbatim rather than
-reimplemented.
-
-Worth knowing, because it cost this page several rounds: an attempt here
-solved each panel's outline as a wobbling vector path and swapped paths on
-the clock. That is the *canvas* boil's mechanism applied to a DOM surface —
-the wrong half of the table — and it looked wrong for exactly that reason.
-The filter goes on DOM shapes; paths get re-emitted. Neither substitutes for
-the other.
-
-Nothing drawn on this page runs through the filter: the three social marks
-are hand-drawn linework and stay untouched, and every bitmap (the lockup,
-the photo, BUZZ) gets a boiling shape *behind* it, never a warp — 2.6's
-silhouette rule. The filter's only input is a single `<rect>`. v3 is explicit that
+**The boil (2.6).** There are two boils — the SVG displacement filter for DOM
+shapes, path re-emission for drawn linework. `design-system/components/boil.html`
+is the filter, copied verbatim rather than reimplemented; v3 is explicit that
 re-deriving it from prose produces something over-complicated and wrong, and
-this page proved that the hard way before the file turned up: it ran at scale
-13 and then 22 across three and four octaves, five to eight times the
-recipe's `scale="2.7"` / `numOctaves="1"`, which is its trap #4 exactly.
+this page proved that the hard way before the file turned up (scale 13, then
+22, across three and four octaves — trap #4 exactly).
 
-The published numbers, unchanged here: `fractalNoise`, `baseFrequency="0.02"`
-isotropic, `numOctaves="1"`, `scale="2.7"`, seeds `[2, 9, 15]` stepped every
-130ms, filter region `x -25% y -30% w 155% h 175%`. **If you change anything,
-change colors, radius and stroke weight — nothing else.**
+The published filter numbers: `fractalNoise`, `baseFrequency="0.02"`,
+`numOctaves="1"`, region `x -25% y -30% w 155% h 175%`, stepped every 130ms.
+Two deliberate departures from the recipe, both measured:
+
+- **`scale="7"`, not 2.7.** Carl's call after seeing the ladder. Measured at
+  the edge with the clock frozen: 2.0–3.0px of raggedness, 0.85px of travel
+  between frames. The sides move about a third as much as the top and bottom,
+  because the colour matrix compresses X to 0.3.
+- **Twelve seeds, not three.** Three seeds × ~7.7 presented frames a second is
+  a loop restarting 2.6 times a second, and consecutive frames differ by 0.5%
+  of their pixels — which reads as roughly 2fps, and got reported as exactly
+  that. Twelve puts the loop at 1.56s. Same step, same amplitude.
+
+**The panels run the path boil, not the filter.** This is the larger
+departure, and it's a performance one. A solid fill can only *show*
+displacement at its boundary — move a charcoal pixel onto another charcoal
+pixel and nothing happened (proven by striping the interior: 2.4% of interior
+pixels change per frame against 0.0% for the flat fill the page ships). So the
+filter was spending a turbulence field and a per-pixel resample across every
+panel to move a rim. Measured flat out on 16 visible panels: filter 33fps,
+path 60fps. Shrinking the filter *region* doesn't help (33.6 vs 33.0), which
+pins the cost on the pipeline rather than on wasted area. `data-boil-mode="filter"`
+on `<html>` puts it back.
+
+That equivalence holds only while the fill is one flat colour. Put a Tier-2
+weathering plate inside a panel and the two stop matching, because the filter
+would ripple the plate and the path won't.
+
+BUZZ's inked outline stays on the filter regardless: `feMorphology` grows a
+silhouette out of the raster's alpha channel, which no path can do. The three
+social marks are drawn linework and stay untouched. Every bitmap (the lockup,
+the photo, BUZZ) gets a boiling shape *behind* it, never a warp — 2.6's
+silhouette rule.
+
+**If you change anything else, change colors, radius and stroke weight —
+nothing else.**
 
 The four promoted traps, and where each is honoured:
 
@@ -195,25 +267,48 @@ explicit width and height. `inset: 0` alone leaves it at 300x150.
 Hold it still with `data-boil="off"` on the `<html>` tag. It also stops for
 `prefers-reduced-motion`.
 
-**Value gap (1.1) — one thing to look at.** The footer nav band (Foggy Mint,
-luminance ≈0.59) sits directly against the mustard ground (≈0.64). That's a
-0.05 gap against the 0.17 floor, so the seam is soft. It's the one place the
-original design and the rule disagree, and it's your call: leaving it matches
-the mockup, or `--band-soft: var(--harbor-teal)` splits them hard. Every
-other adjacency on the page clears the floor.
+**Value gap (1.1).** The footer used to be a Foggy Mint nav band sitting
+against the mustard ground — a 0.09 luminance gap against the 0.17 floor, so
+the seam was soft. It's now one cream footer, and the separation is carried by
+a boiling torn edge (`#slBoilSeam`, scale 26) instead of by a colour step.
+That reads harder than either colour pair did, and it's one band instead of
+two. Every adjacency on the page now clears the floor.
 
 ## How the torn edge works
 
-Each dark panel's black shape lives on a `::before` pseudo-element that
-carries the SVG turbulence/displacement filter, so the edge shreds while the
-text sitting above it stays crisp. Tune it on the filter defs in the page
-head: `scale` = how violent the tear, `baseFrequency` = how fine, `seed` =
-which tear.
+Each dark panel's charcoal shape lives in an `<svg>` layer behind the content,
+so the edge shreds while the text above it stays crisp. In the default path
+mode `engineer.js` draws that edge directly as a filled wobbly path; in filter
+mode a plain `<rect>` goes through the turbulence/displacement filter in the
+page head. Tune it on the filter defs: `scale` = how violent the tear,
+`baseFrequency` = how fine, `seed` = which tear.
 
-## Desktop vs mobile
+The svg is a replaced element, so it needs an explicit width and height —
+`inset: 0` alone leaves it at 300×150.
 
-Desktop is a 2×2 grid: photo and Q&A on the left, name+bio and Spotify on the
-right. Under 900px the cards become full-bleed torn bands and reorder to
-name → photo → bio → Spotify → Q&A, matching the mobile mockup. The bio card
-dissolves (`display: contents`) at that breakpoint so the name band and bio
-band can reorder independently while staying one card on desktop.
+With scripts off there's no path to draw, so the panels fall back to a plain
+CSS background: straight edges, right colours, all the copy legible. The
+`js` class on `<html>` is what switches between the two.
+
+## Layout
+
+**Desktop** is a hero card spanning the full width, then Q&A and Spotify side
+by side under it. The hero card is one panel containing the photo, the name,
+the role and the bio: the photo is `float: left`, so the name and the opening
+paragraphs set alongside it as a second column and the text then closes back
+under it — a magazine wrap, not a grid cell. Nothing in that column carries a
+`max-width`; a block box sits *under* a float, only its line boxes wrap, so a
+measure cap there would have given the wrapped column 13 characters a line.
+
+**Phones** (`max-width: 699px`, or `max-width: 900px` in portrait) go
+single-column and reorder to name → photo → bio → Spotify → Q&A. The panels
+stay four-sided cards rather than full-bleed bands — a band only ever shows
+two of the boil's four sides, and the wobble on the left and right runs off
+screen.
+
+The breakpoint tests **shape, not just width**, which is why the second clause
+is there: a landscape phone is wide but short, and treating it as a desktop is
+what keeps it in two columns instead of stacking a full-height photo above the
+text. A separate rule lifts the photo's `max-height` in that case, scoped
+`min-width: 700px` — without that guard it also caught the 667px portrait
+case and produced an 808px photo, over two screens tall.

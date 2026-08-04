@@ -1,10 +1,22 @@
 <!doctype html>
+<!-- ============================================================
+     TEMPLATE — do not edit the generated pages, edit this.
+
+     Every engineer page is built from this file plus one JSON of
+     content in engineers/. Regenerate with:
+
+         python3 build-page.py engineers/yago-mann.json
+
+     Two files used to be maintained by hand, this one and the live
+     page, and they drifted apart on almost every change made to
+     them. Now the page is an output.
+     ============================================================ -->
 <html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>ENGINEER NAME — STUDIOLAND MGMT</title>
-  <meta name="description" content="ENGINEER NAME — ROLE. Engineer profile at STUDIOLAND MGMT." />
+  <title>{{NAME}} — STUDIOLAND MGMT</title>
+  <meta name="description" content="{{NAME}} — {{ROLE_LOWER}}. Engineer profile at STUDIOLAND MGMT." />
 
   <!-- Fonts are DW Fairfield + TAY Wingman, loaded from /fonts/ by
        engineer.css. No third-party font host. -->
@@ -113,6 +125,7 @@
     </defs>
   </svg>
 
+  <!-- ===================== TOP BAR ===================== -->
   <header class="topbar">
     <div class="topbar__inner">
       <a class="topbar__logo" href="/" aria-label="STUDIOLAND MGMT home">
@@ -131,60 +144,60 @@
     </div>
   </header>
 
+  <!-- ===================== PAGE ===================== -->
   <main class="page">
     <div class="grid">
 
       <!-- Hero: name, photo and bio in ONE card. The photo comes FIRST and
-           floats, so the name, role and bio all run beside it and then close
-           to full width below it. Photo first is a float requirement, not a
-           reading order — the mobile breakpoint reorders with `order`. -->
+           floats, so everything after it — the name and role as well as the
+           bio — runs beside it as a second column and then closes to full
+           width once it clears the bottom of the picture.
+
+           Photo first is a float requirement, not a reading order: a float
+           only affects content that follows it. The phone wants name first,
+           so the mobile breakpoint reorders with `order` once the card has
+           dissolved into separate bands. -->
       <article class="card hero-card">
         <figure class="hero-photo">
-          <img src="assets/ENGINEER-SLUG.webp" alt="ENGINEER NAME"
+          <img src="{{PHOTO}}"
+               alt="{{PHOTO_ALT}}"
+               width="{{PHOTO_W}}" height="{{PHOTO_H}}"
                onerror="this.onerror=null;this.src='/assets/photo-placeholder.svg'" />
         </figure>
 
         <header class="name-block">
-          <h1>Engineer Name</h1>
-          <p>Role, Role, Role</p>
+          <h1>{{NAME}}</h1>
+          <p>{{ROLE}}</p>
         </header>
 
         <div class="bio-body">
-          <p>Bio paragraph one.</p>
-          <p>Bio paragraph two.</p>
-          <p>Bio paragraph three.</p>
-          <p>Bio paragraph four.</p>
+{{BIO}}
         </div>
       </article>
 
+      <!-- Q&A -->
       <section class="card qa-card">
-        <h2>Get to know NAME<br />in four questions:</h2>
+        {{QA_HEADING}}
 
         <dl class="qa">
-          <dt>1. Question?</dt>
-          <dd>Answer.</dd>
-
-          <dt>2. Question?</dt>
-          <dd>Answer.</dd>
-
-          <dt>3. Question?</dt>
-          <dd>Answer.</dd>
-
-          <dt>4. Question?</dt>
-          <dd>Answer.</dd>
+{{QUESTIONS}}
         </dl>
       </section>
 
+      <!-- Spotify credits playlist -->
       <section class="card spotify-card">
-        <h2 class="sr-only">ENGINEER NAME credits playlist</h2>
+        <h2 class="sr-only">{{NAME}} credits playlist</h2>
+        <!-- Paste the playlist ID (the part after /playlist/ in the Spotify URL)
+             into data-playlist. Leave empty to show the placeholder. -->
         <div class="spotify-embed"
-             data-playlist=""
-             data-title="ENGINEER NAME Credits"></div>
+             data-playlist="{{PLAYLIST}}"
+             data-title="{{NAME}} Credits"></div>
       </section>
 
     </div>
   </main>
 
+  <!-- ===================== FOOTER ===================== -->
   <!-- loading="lazy" is ON here by request, and the measurement disagrees with
        it. Recording that honestly because the number I gave earlier was wrong.
 
@@ -211,14 +224,14 @@
          width="600" height="600" loading="lazy" decoding="async"
          onerror="this.onerror=null;this.src='/assets/Buzz%20The%20Mascot5.png'" />
 
-    <nav class="social" aria-label="ENGINEER NAME elsewhere">
-      <a href="#" aria-label="Website">
+    <nav class="social" aria-label="{{NAME}} elsewhere">
+      <a href="{{WEBSITE}}" target="_blank" rel="noopener" aria-label="Website">
         <canvas class="mark" data-mark="website" aria-hidden="true"></canvas>
       </a>
-      <a href="#" aria-label="Instagram">
+      <a href="{{INSTAGRAM}}" target="_blank" rel="noopener" aria-label="Instagram">
         <canvas class="mark" data-mark="instagram" aria-hidden="true"></canvas>
       </a>
-      <a href="#" aria-label="Email">
+      <a href="mailto:{{EMAIL}}" aria-label="Email">
         <canvas class="mark" data-mark="email" aria-hidden="true"></canvas>
       </a>
     </nav>

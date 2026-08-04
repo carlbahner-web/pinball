@@ -1,0 +1,37 @@
+{
+  "_comment": "Content for one engineer page. Run: python3 build-page.py engineers/<file>.json",
+  "slug": "yago-mann",
+  "name": "Yago Mann",
+  "first_name": "Yago",
+  "role": "Producer, Mixer, Guitarist",
+  "photo": "assets/yago-mann.webp",
+  "photo_alt": "Yago Mann sitting on graffiti-covered steps",
+  "bio": [
+    "Yago has spent his career helping artists sound more like themselves. First as a guitar player on other people’s records, and now as a producer, his work is built around drawing out the version of the song you’ve been chasing – not imposing his own sound on top of it.",
+    "He hears performance before he hears production, which means the take you love but keep second-guessing is often the one he’ll fight for.",
+    "The sound he gravitates toward is what he calls “melancholy with momentum”: sweet vocals over distorted textures, drums that hit before you’ve decided to move, bittersweet without becoming heavy.",
+    "You won’t leave a session sounding more like Yago. You’ll leave sounding more like yourself – with someone who never made it about him."
+  ],
+  "questions": [
+    {
+      "q": "What’s a record that changed how you hear music?",
+      "a": "Def Leppard’s Hysteria, The Beatles’ Abbey Road, Pink Floyd’s Dark Side of the Moon."
+    },
+    {
+      "q": "What’s a trait you value in creative people?",
+      "a": "Those who are willing to try an idea out even if it sounds ridiculous to them."
+    },
+    {
+      "q": "What’s something you think people take too seriously?",
+      "a": "The never ending battle between analog vs digital, plugins vs gear, real amps vs amp sims. Who cares…"
+    },
+    {
+      "q": "Coffee or Tea?",
+      "a": "Double irish breakfast black tea with a splash of milk and agave."
+    }
+  ],
+  "spotify_playlist": "4mrtjMXpYzcQc4b5i0jggk",
+  "website": "https://www.yagomann.com/production",
+  "instagram": "https://www.instagram.com/yagomann",
+  "email": "carl@studiolandmgmt.com"
+}

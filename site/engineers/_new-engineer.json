@@ -1,0 +1,30 @@
+{
+  "_comment": "Starter for a new engineer. Copy this, fill it in, then run: python3 build-page.py engineers/<yourfile>.json",
+
+  "slug": "first-last",
+  "name": "First Last",
+  "first_name": "First",
+  "role": "Producer, Mixer",
+
+  "photo": "assets/first-last.webp",
+  "photo_alt": "what is actually happening in the picture, for anyone who cannot see it",
+
+  "bio": [
+    "Paragraph one. Write it as plain prose — apostrophes, quotes and dashes are converted for you.",
+    "Paragraph two.",
+    "Paragraph three."
+  ],
+
+  "questions": [
+    { "q": "First question?", "a": "Answer." },
+    { "q": "Second question?", "a": "Answer." },
+    { "q": "Third question?", "a": "Answer." },
+    { "q": "Fourth question?", "a": "Answer." }
+  ],
+
+  "spotify_playlist": "",
+
+  "website": "https://example.com",
+  "instagram": "https://www.instagram.com/handle",
+  "email": "carl@studiolandmgmt.com"
+}

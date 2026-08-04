@@ -70,6 +70,17 @@
     g.setAttribute('filter', 'url(#slBoil)');
     var rect = document.createElementNS(NS, 'rect');
     rect.setAttribute('class', 'face');
+    /* Geometry as ATTRIBUTES first, refined by CSS where it is supported.
+       x/y/width/height/rx/ry only became CSS properties in Safari 17.4; on
+       anything older the stylesheet's calc() sizing is ignored, the rect has
+       no dimensions, and EVERY charcoal panel silently disappears — which
+       reads as "the stylesheet did not load" rather than as a bug in one
+       feature. Presentation attributes lose to CSS wherever CSS works, so
+       this costs nothing on a current browser. */
+    rect.setAttribute('width', '100%');
+    rect.setAttribute('height', '100%');
+    rect.setAttribute('rx', '16');
+    rect.setAttribute('ry', '16');
     g.appendChild(rect);
     svg.appendChild(g);
     el.insertBefore(svg, el.firstChild);

@@ -1392,6 +1392,29 @@ svg.sl-boil rect.face {
      a second. */
   var shapes = [];
 
+  /* Nothing off-screen needs to move. Without this the page pays for every
+     panel on every step wherever you are scrolled — measured at the footer on
+     a 4x-throttled phone, the panels above the fold were still taking their
+     `d` writes and forcing a layout each frame while completely out of view.
+
+     200px of margin so a shape is already animating by the time it arrives
+     rather than snapping into motion at the viewport edge. */
+  var onScreen = null;   // null until the observer exists: assume visible
+
+  if (window.IntersectionObserver) {
+    onScreen = new Set();
+    var vis = new IntersectionObserver(function (entries) {
+      for (var i = 0; i < entries.length; i++) {
+        var e = entries[i];
+        if (e.isIntersecting) { onScreen.add(e.target); } else { onScreen.delete(e.target); }
+      }
+      paintPaths(phase);          // catch up anything that just arrived
+    }, { rootMargin: '200px 0px' });
+    Array.prototype.forEach.call(hosts, function (el) { vis.observe(el); });
+  }
+
+  function shown(el) { return !onScreen || onScreen.has(el); }
+
   function buildPaths() {
     if (BOIL_MODE !== 'path') return;
     shapes = [];
@@ -1407,14 +1430,21 @@ svg.sl-boil rect.face {
       for (var i = 0; i < SL_SEEDS.length; i++) {
         cache.push(wobblyRoundRect(b.width - 4, b.height - 4, r, PATH_AMP, SL_SEEDS[i]));
       }
-      shapes.push({ face: face, cache: cache, w: Math.round(b.width), h: Math.round(b.height) });
+      shapes.push({ el: el, face: face, cache: cache, w: Math.round(b.width), h: Math.round(b.height) });
     });
-    paintPaths(phase);
+    /* force: every panel gets a shape immediately, on screen or not. Skipping
+       the off-screen ones here would leave them with no `d` at all, and since
+       .has-boil hides the plain ::before fallback that is a panel with no
+       charcoal behind its text — a fast scroll would reveal cream copy on bare
+       mustard. Off-screen panels are drawn once and then simply not updated. */
+    paintPaths(phase, true);
   }
 
-  function paintPaths(f) {
+  function paintPaths(f, force) {
     for (var i = 0; i < shapes.length; i++) {
-      shapes[i].face.setAttribute('d', shapes[i].cache[f % shapes[i].cache.length]);
+      var sh = shapes[i];
+      if (!force && !shown(sh.el)) continue;
+      sh.face.setAttribute('d', sh.cache[f % sh.cache.length]);
     }
   }
 
@@ -1707,8 +1737,10 @@ svg.sl-boil rect.face {
   function drawMark(m) {
     var raw = m.raw;
     var dpr = Math.min(2, window.devicePixelRatio || 1);   // the game's DPR cap
-    var css = m.el.getBoundingClientRect().width;
-    if (!css) return;
+    /* Cached: this ran every frame and forced a layout each time, to read a
+       width that only changes on resize. */
+    var css = m.w || (m.w = m.el.getBoundingClientRect().width);
+    if (!css) { m.w = 0; return; }
     var px = Math.round(css * dpr);
     if (m.el.width !== px) { m.el.width = px; m.el.height = Math.round(px * 134 / 132); }
 
@@ -1762,10 +1794,29 @@ svg.sl-boil rect.face {
   }
   readColors();
 
-  function drawMarks() { for (var i = 0; i < marks.length; i++) drawMark(marks[i]); }
+  /* The marks are canvas linework redrawn from scratch each step, which was
+     the single biggest item at the footer — 3.8% of a core on a 4x-throttled
+     phone. There is no reason to redraw them while they are scrolled away. */
+  var marksVisible = true;
+  function drawMarks() {
+    if (!marksVisible) return;
+    for (var i = 0; i < marks.length; i++) drawMark(marks[i]);
+  }
   drawMarks();
+
+  var row = document.querySelector('.mascot-row');
+  if (row && window.IntersectionObserver) {
+    new IntersectionObserver(function (e) {
+      marksVisible = e[0].isIntersecting;
+      if (marksVisible) drawMarks();
+    }, { rootMargin: '200px 0px' }).observe(row);
+  }
+
   window.addEventListener('resize', function () {
-    setTimeout(function () { readColors(); drawMarks(); }, 150);
+    setTimeout(function () {
+      for (var i = 0; i < marks.length; i++) marks[i].w = 0;   // re-measure
+      readColors(); drawMarks();
+    }, 150);
   });
 
   /* ---- The clock ------------------------------------------------------

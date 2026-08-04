@@ -41,16 +41,28 @@ def build(page: pathlib.Path) -> pathlib.Path:
     css = (HERE / "engineer.css").read_text()
     js = (HERE / "engineer.js").read_text()
 
-    # --- fonts. The stylesheet lists a .woff fallback for each face; only
-    # TAYWingman actually ships one, and inlining both would carry the same
-    # typeface twice. Modern browsers all take woff2, so inline that alone.
+    # --- fonts. Inline the woff2 and drop any .woff fallback listed beside it:
+    # every engine that supports the rest of this page supports woff2, and
+    # carrying both would embed the same typeface twice.
+    #
+    # Matched by FILENAME rather than by the whole src list. An earlier version
+    # matched the exact two-url form, so the moment one @font-face was reduced
+    # to woff2-only its face silently stopped being inlined — the build still
+    # succeeded, 32KB lighter, with the page falling back to Arial Narrow.
     for face in ("dwfairfield-webfont", "TAYWingman"):
+        f = HERE / "fonts" / f"{face}.woff2"
+        if not f.exists():
+            print(f"  ! missing fonts/{face}.woff2", file=sys.stderr)
+            continue
         css = re.sub(
-            r'url\("fonts/%s\.woff2"\) format\("woff2"\),\s*\n\s*url\("fonts/%s\.woff"\)\s*format\("woff"\)'
-            % (re.escape(face), re.escape(face)),
-            lambda m, f=face: 'url("%s") format("woff2")' % datauri(HERE / "fonts" / f"{f}.woff2"),
+            r'url\("fonts/%s\.woff2"\) format\("woff2"\)'
+            r'(?:,\s*url\("fonts/%s\.woff"\)\s*format\("woff"\))?' % (re.escape(face), re.escape(face)),
+            lambda m, u=datauri(f): 'url("%s") format("woff2")' % u,
             css,
         )
+    left = re.findall(r'url\("fonts/[^"]+"\)', css)
+    if left:
+        raise SystemExit(f"build-standalone: these fonts were not inlined: {left}")
 
     # --- images referenced from the stylesheet (the paper grain, and the
     # weathering plate if one is ever added). Skip any that isn't there.

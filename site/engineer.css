@@ -19,7 +19,6 @@
   /* Roles on this page (point these at palette entries, not raw hexes) */
   --ground:      var(--midway-mustard);  /* the page's textured ground */
   --ink:         var(--charcoal);        /* inked Box1 panels */
-  --ink-on-dark: var(--cream);           /* type inside the panels */
   /* The footer is one cream surface now, so nothing on this page uses a
      coloured band. Foggy Mint and Harbor Teal stay in the palette above,
      unused here — this page currently carries no teal at all. */
@@ -39,9 +38,10 @@
      0.5em — so body copy is pulled IN rather than tracked out. -0.03em starts
      to crowd; -0.02 tightens visibly with no collisions. */
   --body-track:    -0.02em;
-  /* 17px, not 15. This face's x-height is 0.47 of its size against system-ui's
-     0.56, so it renders about 20% smaller than the number suggests: 15px reads
-     like 13px system text, and the old sub-420px 14px override read like 12px. */
+  /* 16px, not 15 or 14. This face's x-height is 0.47 of its size against
+     system-ui's 0.56, so it renders about 20% smaller than the number
+     suggests: 15px reads like 13px system text, and the old sub-420px 14px
+     override read like 12px. 17 was tried first and came back a shade large. */
   --body-size:     16px;
 
   /* ---- Layout ---- */
@@ -112,6 +112,19 @@ a   { color: inherit; text-decoration: none; }
 /* the filter lives here but paints nowhere */
 .sl-defs { position: absolute; width: 0; height: 0; overflow: hidden; }
 
+/* Keyboard focus. There was none of this: every control fell back to the
+   browser's 1px outline, and .topbar__menu had none at all because `border: 0`
+   removes the UA ring on a button. Charcoal reads on both grounds this page
+   puts controls on — 13.07:1 on cream, 9.14:1 on mustard — and flips to
+   mustard for anything inside an inked panel. */
+:focus-visible {
+  outline: 3px solid var(--ink);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+.card :focus-visible { outline-color: var(--midway-mustard); }
+
 /* Screen-reader only */
 .sr-only {
   position: absolute; width: 1px; height: 1px;
@@ -123,7 +136,7 @@ a   { color: inherit; text-decoration: none; }
    Panel (Box1)
    The panel's dark shape sits behind its own content, so the inked contour
    never smears the text sitting on top of it. engineer.js replaces the plain
-   pseudo-element with a drawn one; see .cel below.
+   pseudo-element with a drawn one; see svg.sl-boil below.
    ========================================================================== */
 
 .card {
@@ -603,7 +616,9 @@ svg.sl-boil rect.face {
   font-size: 14px;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  opacity: 0.55;
+  /* 0.55 measured 3.35:1 against the cream, under the 4.5 that 14px normal
+     text needs. 0.7 measures 4.84:1 and still steps back from the nav. */
+  opacity: 0.7;
 }
 
 /* ==========================================================================
@@ -838,8 +853,11 @@ svg.sl-boil rect.face {
 
 @font-face {
   font-family: "DW Fairfield";
-  src: url("fonts/dwfairfield-webfont.woff2") format("woff2"),
-       url("fonts/dwfairfield-webfont.woff")  format("woff");
+  /* woff2 only: the .woff cut of this face is not in the repo, and pointing
+     at it meant any browser old enough to need it would 404 instead of
+     falling back cleanly. Every engine that supports the rest of this page
+     supports woff2. */
+  src: url("fonts/dwfairfield-webfont.woff2") format("woff2");
   font-weight: normal;
   font-style: normal;
   font-display: swap;

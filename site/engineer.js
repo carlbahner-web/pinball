@@ -8,19 +8,20 @@
      This is the packaged StudioLand recipe, copied from the reference
      implementation shipping in BUZZ's Wild Ride. Do not re-derive it.
 
-     Hand-inked linework redrawn on an ~8fps three-phase clock. The whole
+     Hand-inked linework redrawn on an ~8fps twelve-phase clock. The whole
      shape is displaced together, so the wobbling fill edge IS the border.
 
      The traps, each of which reads as "horrible" when hit:
-       1. It STEPS between three fixed seeds. Anything smooth — a CSS
-          transition, SMIL, scrolling the noise — reads as jelly.
+       1. It STEPS between fixed seeds. Anything smooth — a CSS transition,
+          SMIL, scrolling the noise — reads as jelly.
        2. The filter goes on a shape layer BEHIND the text, never on the
           element. Labels stay crisp.
        3. The border must BE the displaced shape's edge, not a CSS border
           with something wobbling over it.
-       4. The numbers are small: baseFrequency 0.02 isotropic, numOctaves 1,
-          scale 2.7. Bigger scale reads drunk; higher frequency reads
-          electric.
+       4. The numbers are small: baseFrequency 0.02 isotropic, numOctaves 1.
+          The packaged scale is 2.7; this page runs 7 on panels and 26 on the
+          footer seam, both argued for where they are set. Bigger reads drunk;
+          higher frequency reads electric.
        5. The filter needs an explicit region or the displaced edge clips
           flat against an invisible box.
        6. The ink needs contrast with its field or nothing appears to boil.
@@ -46,7 +47,7 @@
   var SL_SEEDS = [2, 9, 15, 23, 31, 44, 52, 61, 70, 78, 86, 95];
   var STEP_MS = 130;                     // ~8fps
   var root = document.documentElement;
-  var phase = 0;                 // the shared 3-phase index, driven by the clock
+  var phase = 0;            // shared index into SL_SEEDS, driven by the clock
 
   /* Marks the page as scripted. Everything below draws things the markup
      cannot declare — the boil shapes, the social marks, the player — and a
@@ -267,7 +268,7 @@
           marks don't scroll, so their own design coordinates are the world.
        2. Subdivide long segments — a straight line jittered only at its ends
           just tilts. Bowing needs interior points.
-       3. It STEPS three phases at ~130ms, and the phase shifts the noise SEED
+       3. It STEPS through the phases at ~130ms, and the phase shifts the SEED
           (+7.31), so each is a different tracing rather than the same wobble
           slid sideways.
        4. Amplitudes are in DESIGN units scaled at draw time, never device
@@ -644,7 +645,8 @@
       frame.title = title;
       frame.allow =
         'autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture';
-      frame.setAttribute('allowfullscreen', '');
+      /* no allowfullscreen: `allow` above already grants fullscreen and takes
+         precedence over it, and setting both makes the browser warn. */
       host.appendChild(frame);
     }
   );

@@ -48,6 +48,12 @@
   var root = document.documentElement;
   var phase = 0;                 // the shared 3-phase index, driven by the clock
 
+  /* Marks the page as scripted. Everything below draws things the markup
+     cannot declare — the boil shapes, the social marks, the player — and a
+     no-JS reader has to get something sensible instead. See the fallbacks at
+     the end of engineer.css. */
+  root.classList.add('js');
+
   var stillWanted =
     root.getAttribute('data-boil') === 'off' ||
     (window.matchMedia &&

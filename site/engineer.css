@@ -733,9 +733,13 @@ svg.sl-boil rect.face {
   .name-block { padding-top: 30px; padding-bottom: 30px; }
   .name-block h1 { font-size: 38px; }
 
-  /* yellow breathing room between the bands */
+  /* yellow breathing room between the bands. The photo band takes the same
+     ::before geometry as every other band — it used to override it with
+     `inset: 24px 18px`, a leftover from when this was a .card and the shape
+     had to be pulled INWARDS to make a mount. As a band that inset put the
+     charcoal entirely behind the picture, so with scripting off the photo sat
+     on bare mustard while every other band kept its panel. */
   .hero-photo { padding: clamp(20px, 5vw, 30px) clamp(18px, 5vw, 24px); }
-  .hero-photo::before { inset: 24px 18px; border-radius: 14px; }
   .hero-photo img {
     width: auto;
     max-width: 100%;
@@ -844,4 +848,49 @@ svg.sl-boil rect.face {
   font-weight: normal;
   font-style: normal;
   font-display: swap;
+}
+
+/* ==========================================================================
+   Without JavaScript
+
+   The page is built to degrade rather than break: every panel keeps the plain
+   ::before shape it starts with and simply holds still, since the boil is the
+   only thing the script does to them. These cover the parts that are DRAWN by
+   script and so have nothing to fall back to.
+
+   Not hypothetical. The standalone build gets opened in file-preview panes —
+   iOS Quick Look, chat clients, mail — and a good number of them run no
+   scripts at all.
+   ========================================================================== */
+
+/* The marks are canvas linework, so with no script they are three empty
+   boxes. Their accessible names are already on the links; show them. */
+:root:not(.js) .social canvas.mark { display: none; }
+
+:root:not(.js) .social a {
+  font-family: var(--font-display);
+  font-size: clamp(17px, 2vw, 22px);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-decoration: underline;
+  text-underline-offset: 5px;
+}
+
+:root:not(.js) .social a::after { content: attr(aria-label); }
+
+/* The player is an iframe the script builds from data-playlist, so the card
+   is otherwise an empty panel. */
+:root:not(.js) .spotify-embed::before {
+  content: "The playlist player needs JavaScript. Open this page in a browser to hear it.";
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  min-height: 200px;
+  padding: 30px;
+  border: 2px dashed rgba(252, 247, 232, 0.4);
+  border-radius: 12px;
+  font-size: 14px;
+  line-height: 1.7;
+  color: rgba(252, 247, 232, 0.75);
 }
